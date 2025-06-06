@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% block body %}
+    <p class="mt-4">You already have a Google Workspace account — sign in to any Google service with <a href="mailto:{{ workspace_account }}">{{ workspace_account }}</a>.</p>
+    <a class="btn btn-primary" href="https://www.google.com/a/robojackets.org/ServiceLogin?continue=https://workspace.google.com/dashboard" role="button">Open Google Workspace</a>
+    <p class="mt-3">Please ask in <a href="slack://channel?team={{ slack_team_id }}&id={{ slack_support_channel_id }}">#{{ slack_support_channel_name }}</a> if you have any questions or need assistance.</p>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "layout.html" %}
+{% block body %}
+    <p class="mt-4">You're not currently eligible for a Google Workspace account.</p>
+    <p>If you believe this is an error, please ask in <a href="slack://channel?team={{ slack_team_id }}&id={{ slack_support_channel_id }}">#{{ slack_support_channel_name }}</a>.</p>
+{% endblock %}

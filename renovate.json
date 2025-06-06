@@ -1,0 +1,73 @@
+{
+    "extends": [
+        "config:recommended"
+    ],
+    "prConcurrentLimit": 1,
+    "prHourlyLimit": 0,
+    "rebaseWhen": "behind-base-branch",
+    "automerge": true,
+    "platformAutomerge": true,
+    "lockFileMaintenance": {
+        "enabled": true,
+        "schedule": [
+            "before 4pm every weekday except before 9am every weekday"
+        ]
+    },
+    "rangeStrategy": "pin",
+    "timezone": "America/New_York",
+    "schedule": [
+        "before 4pm every weekday except before 9am every weekday"
+    ],
+    "packageRules": [
+        {
+            "matchDepNames": [
+                "python"
+            ],
+            "rangeStrategy": "replace"
+        },
+        {
+            "matchCategories": [
+                "python"
+            ],
+            "matchDepNames": [
+                "Authlib"
+            ],
+            "prPriority": 3
+        },
+        {
+            "matchCategories": [
+                "python"
+            ],
+            "matchDepNames": [
+                "Flask"
+            ],
+            "prPriority": 4
+        },
+        {
+            "matchCategories": [
+                "js"
+            ],
+            "matchDepNames": [
+                "terser"
+            ],
+            "prPriority": 1
+        },
+        {
+            "matchCategories": [
+                "js"
+            ],
+            "matchDepNames": [
+                "elm"
+            ],
+            "prPriority": 2
+        },
+        {
+            "matchCategories": [
+                "docker"
+            ],
+            "major": {
+                "enabled": true
+            }
+        }
+    ]
+}
