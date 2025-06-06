@@ -381,6 +381,10 @@ view model =
                 , text ", "
                 , a [ href "https://cloud.google.com/terms/cloud-privacy-notice", class "text-secondary", target "_blank" ] [ text "Google Cloud Privacy Notice" ]
                 , text ", "
+                , a [ href "https://legal.hubspot.com/terms-of-service", class "text-secondary", target "_blank" ] [ text "HubSpot Customer Terms of Service" ]
+                , text ", "
+                , a [ href "https://legal.hubspot.com/privacy-policy", class "text-secondary", target "_blank" ] [ text "HubSpot Privacy Policy" ]
+                , text ", "
                 , a [ href "https://policylibrary.gatech.edu/information-technology/acceptable-use-policy", class "text-secondary", target "_blank" ] [ text "Georgia Institute of Technology Acceptable Use Policy" ]
                 , text ", "
                 , a [ href "https://policylibrary.gatech.edu/information-technology/cyber-security-policy", class "text-secondary", target "_blank" ] [ text "Georgia Institute of Technology Cyber Security Policy" ]
