@@ -323,8 +323,8 @@ job "workspace-onboarding-ux" {
 
       resources {
         cpu = 100
-        memory = 256
-        memory_max = 2048
+        memory = 128
+        memory_max = 1024
       }
 
       template {
