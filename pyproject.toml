@@ -11,7 +11,7 @@ python = "^3.10"
 Flask = "3.1.1"
 Authlib = "1.6.0"
 requests = "2.32.4"
-uwsgi = "2.0.29"
+uwsgi = "2.0.30"
 sentry-sdk = {extras = ["pure-eval", "flask"], version = "2.29.1"}
 flask-caching = "2.3.1"
 celery = {extras = ["redis"], version = "5.5.3"}
