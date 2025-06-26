@@ -676,9 +676,7 @@ def login() -> Any:  # pylint: disable=too-many-branches
 
     if "googleWorkspaceAccount" in userinfo and userinfo["googleWorkspaceAccount"] is not None:
         workspace_user = (
-            get_google_workspace_client()
-            .get(userKey=userinfo["googleWorkspaceAccount"])
-            .execute()
+            get_google_workspace_client().get(userKey=userinfo["googleWorkspaceAccount"]).execute()
         )
 
         session["user_state"] = "provisioned"
