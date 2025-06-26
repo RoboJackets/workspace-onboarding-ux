@@ -626,21 +626,16 @@ def index() -> Any:
     )
 
     if google_workspace_account is not None:
-        try:
-            workspace_user = (
-                get_google_workspace_client().get(userKey=google_workspace_account).execute()
-            )
+        workspace_user = (
+            get_google_workspace_client().get(userKey=google_workspace_account).execute()
+        )
 
-            session["user_state"] = "provisioned"
-            session["email_address"] = workspace_user["primaryEmail"]
+        session["user_state"] = "provisioned"
+        session["email_address"] = workspace_user["primaryEmail"]
 
-            invite_user_to_hubspot.delay(workspace_user["id"])
+        invite_user_to_hubspot.delay(workspace_user["id"])
 
-            return render_template("provisioned.html", workspace_account=session["email_address"])
-        except HttpError as e:
-            # if the account in Keycloak is not a real Google Workspace account then ignore it
-            if e.status_code not in (403, 404):
-                raise e
+        return render_template("provisioned.html", workspace_account=session["email_address"])
 
     if session["user_state"] == "ineligible":
         session.clear()
@@ -680,23 +675,18 @@ def login() -> Any:  # pylint: disable=too-many-branches
     )
 
     if "googleWorkspaceAccount" in userinfo and userinfo["googleWorkspaceAccount"] is not None:
-        try:
-            workspace_user = (
-                get_google_workspace_client()
-                .get(userKey=userinfo["googleWorkspaceAccount"])
-                .execute()
-            )
+        workspace_user = (
+            get_google_workspace_client()
+            .get(userKey=userinfo["googleWorkspaceAccount"])
+            .execute()
+        )
 
-            session["user_state"] = "provisioned"
-            session["email_address"] = workspace_user["primaryEmail"]
+        session["user_state"] = "provisioned"
+        session["email_address"] = workspace_user["primaryEmail"]
 
-            invite_user_to_hubspot.delay(workspace_user["id"])
+        invite_user_to_hubspot.delay(workspace_user["id"])
 
-            return redirect(url_for("index"))
-        except HttpError as e:
-            # if the account in Keycloak is not a real Google Workspace account then ignore it
-            if e.status_code not in (403, 404):
-                raise e
+        return redirect(url_for("index"))
 
     session["first_name"] = userinfo["given_name"] if "given_name" in userinfo else ""
     session["last_name"] = userinfo["family_name"] if "family_name" in userinfo else ""
