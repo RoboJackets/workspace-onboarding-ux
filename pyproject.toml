@@ -15,7 +15,7 @@ uwsgi = "2.0.30"
 sentry-sdk = {extras = ["pure-eval", "flask"], version = "2.32.0"}
 flask-caching = "2.3.1"
 celery = {extras = ["redis"], version = "5.5.3"}
-slack-sdk = "3.35.0"
+slack-sdk = "3.36.0"
 ldap3 = "2.9.1"
 google-api-python-client = "2.176.0"
 hubspot-api-client = "12.0.0"
