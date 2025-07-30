@@ -12,7 +12,7 @@ Flask = "3.1.1"
 Authlib = "1.6.1"
 requests = "2.32.4"
 uwsgi = "2.0.30"
-sentry-sdk = {extras = ["pure-eval", "flask"], version = "2.34.0"}
+sentry-sdk = {extras = ["pure-eval", "flask"], version = "2.34.1"}
 flask-caching = "2.3.1"
 celery = {extras = ["redis"], version = "5.5.3"}
 slack-sdk = "3.36.0"
