@@ -686,8 +686,16 @@ def login() -> Any:  # pylint: disable=too-many-branches
 
         return redirect(url_for("index"))
 
-    session["first_name"] = userinfo["given_name"] if "given_name" in userinfo else ""
-    session["last_name"] = userinfo["family_name"] if "family_name" in userinfo else ""
+    session["first_name"] = (
+        userinfo["given_name"]
+        if "given_name" in userinfo and userinfo["given_name"] != "Confidential"
+        else ""
+    )
+    session["last_name"] = (
+        userinfo["family_name"]
+        if "family_name" in userinfo and userinfo["family_name"] != "Confidential"
+        else ""
+    )
     session["email_address"] = (
         session["first_name"] + "." + session["last_name"] + "@robojackets.org"
     ).lower()
