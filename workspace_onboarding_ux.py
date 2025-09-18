@@ -710,6 +710,7 @@ def login() -> Any:  # pylint: disable=too-many-branches
         headers={
             "Authorization": "Bearer " + app.config["APIARY_TOKEN"],
             "Accept": "application/json",
+            "x-cache-bypass": "bypass",
         },
         params={"include": "roles,teams"},
         timeout=(5, 5),
