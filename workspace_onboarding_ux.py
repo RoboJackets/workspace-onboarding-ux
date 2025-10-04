@@ -185,7 +185,7 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
     keycloak_user_id: str,
 ) -> Union[str, None]:
     """
-    Get the Slack user ID for a given Keycloak or Ramp user
+    Get the Slack user ID for a given Keycloak user
     """
     get_keycloak_user_response = get(
         url=app.config["KEYCLOAK_SERVER"]
