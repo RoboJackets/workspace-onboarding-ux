@@ -27,7 +27,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN set -eux && \
     apt-get update && \
     apt-get upgrade -qq --assume-yes && \
-    apt-get install -qq --assume-yes build-essential python-dev libpcre3 libpcre3-dev zopfli && \
+    apt-get install -qq --assume-yes build-essential zopfli && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install poetry && \
     useradd --home-dir /app/ --create-home --shell /bin/bash uwsgi
