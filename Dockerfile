@@ -15,7 +15,7 @@ RUN set -eux && \
     npm ci --no-progress && \
     npm run build
 
-FROM python:3.13-slim-bullseye
+FROM python:3.14-slim-trixie
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="${PATH}:/root/.local/bin" \
@@ -27,7 +27,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN set -eux && \
     apt-get update && \
     apt-get upgrade -qq --assume-yes && \
-    apt-get install -qq --assume-yes build-essential python-dev libpcre3 libpcre3-dev zopfli && \
+    apt-get install -qq --assume-yes build-essential zopfli && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install poetry && \
     useradd --home-dir /app/ --create-home --shell /bin/bash uwsgi
@@ -44,6 +44,6 @@ RUN set -eux && \
     POETRY_VIRTUALENVS_CREATE=false poetry install --only main --no-root --no-interaction --no-ansi && \
     zopfli --gzip -v --i10 /app/static/app.js && \
     touch /app/static/app.js.gz /app/static/app.js && \
-    sed -i 's/return self.request.get_json()/        return self.request.get_json(silent=True)/g' /usr/local/lib/python3.13/site-packages/sentry_sdk/integrations/flask.py
+    sed -i 's/return self.request.get_json()/        return self.request.get_json(silent=True)/g' /usr/local/lib/python3.14/site-packages/sentry_sdk/integrations/flask.py
 
 USER uwsgi
