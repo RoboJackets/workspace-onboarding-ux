@@ -26,6 +26,12 @@
             "rangeStrategy": "replace"
         },
         {
+            "matchDepNames": [
+                "node"
+            ],
+            "rangeStrategy": "replace"
+        },
+        {
             "matchCategories": [
                 "python"
             ],
