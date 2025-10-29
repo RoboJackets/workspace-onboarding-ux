@@ -175,6 +175,7 @@ def get_slack_user_id_by_email(email: str) -> Union[str, None]:
         if slack_response.data["ok"]:  # type: ignore
             return slack_response.data["user"]["id"]  # type: ignore
     except SlackApiError:
+        # this exception is thrown if there is no user with this email (among other possibilities)
         pass
 
     return None
