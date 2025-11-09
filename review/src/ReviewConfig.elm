@@ -15,8 +15,6 @@ import Docs.ReviewAtDocs
 import NoConfusingPrefixOperator
 import NoDebug.Log
 import NoDebug.TodoOrToString
-import NoExposingEverything
-import NoImportingEverything
 import NoMissingTypeAnnotation
 import NoMissingTypeAnnotationInLetIn
 import NoMissingTypeExpose
@@ -40,15 +38,12 @@ config =
     , NoDebug.Log.rule
     , NoDebug.TodoOrToString.rule
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
-    , NoExposingEverything.rule
-    , NoImportingEverything.rule []
     , NoMissingTypeAnnotation.rule
     , NoMissingTypeAnnotationInLetIn.rule
     , NoMissingTypeExpose.rule
     , NoSimpleLetBody.rule
     , NoPrematureLetComputation.rule
     , NoUnused.CustomTypeConstructors.rule []
-    , NoUnused.CustomTypeConstructorArgs.rule
     , NoUnused.Dependencies.rule
     , NoUnused.Exports.rule
     , NoUnused.Parameters.rule

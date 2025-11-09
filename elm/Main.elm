@@ -10,7 +10,7 @@ import Html.Events exposing (..)
 import Http exposing (..)
 import Json.Decode exposing (..)
 import Json.Encode
-import List exposing (..)
+import List
 import Regex
 import String exposing (..)
 import Task
@@ -120,7 +120,7 @@ main =
 
 
 init : Value -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
+init flags _ _ =
     ( buildInitialModel flags
     , Cmd.none
     )
@@ -137,7 +137,7 @@ update msg model =
                 Browser.External href ->
                     ( model, Nav.load href )
 
-        UrlChanged url ->
+        UrlChanged _ ->
             ( model, Cmd.none )
 
         FormSubmitted ->
@@ -240,9 +240,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.batch
-        [ localStorageSaved LocalStorageSaved
-        ]
+    localStorageSaved LocalStorageSaved
 
 
 view : Model -> Browser.Document Msg
@@ -572,11 +570,6 @@ buildInitialModel value =
         False
         Editing
         NoOpNextAction
-
-
-nonBlankString : String -> Bool
-nonBlankString value =
-    not (blankString value)
 
 
 blankString : String -> Bool
