@@ -6,6 +6,7 @@ RUN npm install -g npm@latest
 
 COPY --link package.json package-lock.json elm.json /app/
 COPY --link elm/ /app/elm/
+COPY --link review/ /app/review/
 COPY --link js/ /app/js/
 COPY --link static/ /app/static/
 
