@@ -10,7 +10,8 @@ from typing import Any, Dict, Union
 from urllib.parse import urlparse, urlunparse
 from uuid import UUID, uuid4
 
-from authlib.integrations.flask_client import OAuth  # type: ignore
+from authlib.integrations.flask_client import OAuth
+from authlib.integrations.requests_client import OAuth2Session
 
 from celery import Celery, Task, shared_task
 
@@ -29,7 +30,7 @@ from hubspot.settings.users.exceptions import NotFoundException  # type: ignore
 
 from ldap3 import Connection, Server
 
-from requests import delete, get, post, put
+from requests import get, post
 
 import sentry_sdk
 from sentry_sdk import set_user
@@ -99,12 +100,20 @@ app.config.from_prefixed_env()
 
 celery_app = init_celery(app)
 
-oauth = OAuth(app)
-oauth.register(
+oauth = OAuth(app)  # type: ignore
+oauth.register(  # type: ignore
     name="keycloak",
     server_metadata_url=app.config["KEYCLOAK_METADATA_URL"],
     client_kwargs={"scope": "openid email profile"},
 )
+
+keycloak = OAuth2Session(
+    client_id=app.config["KEYCLOAK_ADMIN_CLIENT_ID"],
+    client_secret=app.config["KEYCLOAK_ADMIN_CLIENT_SECRET"],
+    token_endpoint=app.config["KEYCLOAK_SERVER"] + "/realms/master/protocol/openid-connect/token",
+    leeway=5,
+)
+keycloak.fetch_token()
 
 cache = Cache(app)
 cache.clear()
@@ -144,24 +153,6 @@ def get_google_workspace_client() -> Resource:
     return directory.users()
 
 
-@cache.cached(timeout=55, key_prefix="keycloak_access_token")
-def get_keycloak_access_token() -> str:
-    """
-    Get an access token for Keycloak.
-    """
-    keycloak_access_token_response = post(
-        url=app.config["KEYCLOAK_SERVER"] + "/realms/master/protocol/openid-connect/token",
-        data={
-            "client_id": app.config["KEYCLOAK_ADMIN_CLIENT_ID"],
-            "client_secret": app.config["KEYCLOAK_ADMIN_CLIENT_SECRET"],
-            "grant_type": "client_credentials",
-        },
-        timeout=(5, 5),
-    )
-    keycloak_access_token_response.raise_for_status()
-    return keycloak_access_token_response.json()["access_token"]  # type: ignore
-
-
 @cache.memoize()
 def get_slack_user_id_by_email(email: str) -> Union[str, None]:
     """
@@ -188,15 +179,12 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
     """
     Get the Slack user ID for a given Keycloak user
     """
-    get_keycloak_user_response = get(
+    get_keycloak_user_response = keycloak.get(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + keycloak_user_id,
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         timeout=(5, 5),
     )
     get_keycloak_user_response.raise_for_status()
@@ -316,7 +304,7 @@ def remove_eligible_role(keycloak_user_id: str) -> None:
     """
     Remove the eligible role from this user in Keycloak, after they are provisioned
     """
-    remove_eligible_role_response = delete(
+    remove_eligible_role_response = keycloak.delete(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -324,9 +312,6 @@ def remove_eligible_role(keycloak_user_id: str) -> None:
         + keycloak_user_id
         + "/role-mappings/clients/"
         + app.config["KEYCLOAK_CLIENT_UUID"],
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         timeout=(5, 5),
         json=[{"id": app.config["KEYCLOAK_CLIENT_ROLE_ELIGIBLE"], "name": "eligible"}],
     )
@@ -359,15 +344,12 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
     if cache.get("slack_ineligible_message_" + keycloak_user_id) is not None:
         return
 
-    get_keycloak_user_response = get(
+    get_keycloak_user_response = keycloak.get(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + keycloak_user_id,
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         timeout=(5, 5),
     )
     get_keycloak_user_response.raise_for_status()
@@ -489,15 +471,12 @@ def notify_slack_account_created(keycloak_user_id: str) -> None:
     Send Slack notifications to the central notifications channel when a new user is added
     to Google Workspace
     """
-    keycloak_user_response = get(
+    keycloak_user_response = keycloak.get(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + keycloak_user_id,
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         timeout=(5, 5),
     )
     keycloak_user_response.raise_for_status()
@@ -605,15 +584,12 @@ def index() -> Any:
             slack_support_channel_name=get_slack_channel_name(app.config["SLACK_SUPPORT_CHANNEL"]),
         )
 
-    keycloak_user_response = get(
+    keycloak_user_response = keycloak.get(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + session["sub"],
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         timeout=(5, 5),
     )
     keycloak_user_response.raise_for_status()
@@ -771,14 +747,11 @@ def check_availability() -> Any:
 
     requested_email_address = request.json["emailAddress"].lower()  # type: ignore
 
-    search_keycloak_user_response = get(
+    search_keycloak_user_response = keycloak.get(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users",
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         params={
             "q": "googleWorkspaceAccount:" + requested_email_address,
         },
@@ -834,15 +807,12 @@ def submit() -> Any:
         .execute()
     )
 
-    get_keycloak_user_response = get(
+    get_keycloak_user_response = keycloak.get(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + session["sub"],
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         timeout=(5, 5),
     )
     get_keycloak_user_response.raise_for_status()
@@ -859,16 +829,13 @@ def submit() -> Any:
     else:
         new_user["attributes"]["googleWorkspaceAccount"] = [new_workspace_user["primaryEmail"]]
 
-    update_keycloak_user_response = put(
+    update_keycloak_user_response = keycloak.put(
         url=app.config["KEYCLOAK_SERVER"]
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + session["sub"],
         json=new_user,
-        headers={
-            "Authorization": "Bearer " + get_keycloak_access_token(),
-        },
         timeout=(5, 5),
     )
     update_keycloak_user_response.raise_for_status()
@@ -910,7 +877,7 @@ def handle_slack_event() -> Dict[str, str]:
         return {"status": "ok"}
 
     if payload["actions"][0]["action_id"] == "grant_eligibility_in_keycloak":
-        add_eligible_role_response = post(
+        add_eligible_role_response = keycloak.post(
             url=app.config["KEYCLOAK_SERVER"]
             + "/admin/realms/"
             + app.config["KEYCLOAK_REALM"]
@@ -918,9 +885,6 @@ def handle_slack_event() -> Dict[str, str]:
             + str(UUID(payload["actions"][0]["value"]))
             + "/role-mappings/clients/"
             + app.config["KEYCLOAK_CLIENT_UUID"],
-            headers={
-                "Authorization": "Bearer " + get_keycloak_access_token(),
-            },
             timeout=(5, 5),
             json=[{"id": app.config["KEYCLOAK_CLIENT_ROLE_ELIGIBLE"], "name": "eligible"}],
         )
