@@ -76,7 +76,7 @@ type FormState
 
 
 type alias CheckAvailabilityResult =
-    { available : Maybe Bool }
+    { available : Bool }
 
 
 type alias Model =
@@ -214,24 +214,22 @@ update msg model =
                 , formState =
                     case result of
                         Ok availabilityResult ->
-                            case availabilityResult.available of
-                                Just True ->
-                                    Submitting
+                            if availabilityResult.available then
+                                Submitting
 
-                                _ ->
-                                    Editing
+                            else
+                                Editing
 
                         Err _ ->
                             Editing
               }
             , case result of
                 Ok availabilityResult ->
-                    case availabilityResult.available of
-                        Just True ->
-                            submitForm True
+                    if availabilityResult.available then
+                        submitForm True
 
-                        _ ->
-                            Task.attempt (\_ -> NoOpMsg) (focus "email_address")
+                    else
+                        Task.attempt (\_ -> NoOpMsg) (focus "email_address")
 
                 Err _ ->
                     Task.attempt (\_ -> NoOpMsg) (focus "email_address")
@@ -444,15 +442,11 @@ validateEmailAddress emailAddress maybeCheckAvailabilityResult =
                                 Just checkAvailabilityResult ->
                                     case checkAvailabilityResult of
                                         Ok result ->
-                                            case result.available of
-                                                Just True ->
-                                                    Valid
+                                            if result.available then
+                                                Valid
 
-                                                Just False ->
-                                                    Invalid "This email address isn't available — if you'd like to use it, please ask in #it-helpdesk"
-
-                                                Nothing ->
-                                                    Invalid "There was an error confirming this email address is available"
+                                            else
+                                                Invalid "This email address isn't available — if you'd like to use it, please ask in #it-helpdesk"
 
                                         Err _ ->
                                             Invalid "There was an error confirming this email address is available"
@@ -537,7 +531,7 @@ checkAvailability emailAddress =
 checkAvailabilityResultDecoder : Decoder CheckAvailabilityResult
 checkAvailabilityResultDecoder =
     Json.Decode.map CheckAvailabilityResult
-        (maybe (at [ "available" ] Json.Decode.bool))
+        (at [ "available" ] Json.Decode.bool)
 
 
 buildInitialModel : Value -> Model
