@@ -616,11 +616,16 @@ def index() -> Any:
 
     if session["user_state"] == "ineligible":
         session.clear()
-        return render_template(
-            "ineligible.html",
-            slack_team_id=get_slack_team_id(),
-            slack_support_channel_id=app.config["SLACK_SUPPORT_CHANNEL"],
-            slack_support_channel_name=get_slack_channel_name(app.config["SLACK_SUPPORT_CHANNEL"]),
+        return (
+            render_template(
+                "ineligible.html",
+                slack_team_id=get_slack_team_id(),
+                slack_support_channel_id=app.config["SLACK_SUPPORT_CHANNEL"],
+                slack_support_channel_name=get_slack_channel_name(
+                    app.config["SLACK_SUPPORT_CHANNEL"]
+                ),
+            ),
+            424,
         )
 
     return render_template(
