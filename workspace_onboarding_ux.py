@@ -747,10 +747,10 @@ def check_availability() -> Any:
         }
     )
 
-    if "emailAddress" not in request.json:  # type: ignore
+    if "emailAddress" not in request.json:
         raise BadRequest("Missing email address")
 
-    requested_email_address = request.json["emailAddress"].lower()  # type: ignore
+    requested_email_address = request.json["emailAddress"].lower()
 
     search_keycloak_user_response = keycloak.get(
         url=app.config["KEYCLOAK_SERVER"]
