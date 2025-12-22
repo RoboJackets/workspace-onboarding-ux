@@ -1532,14 +1532,14 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyparsing"
-version = "3.2.5"
+version = "3.3.0"
 description = "pyparsing - Classes and methods to define and execute parsing grammars"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "pyparsing-3.2.5-py3-none-any.whl", hash = "sha256:e38a4f02064cf41fe6593d328d0512495ad1f3d8a91c4f73fc401b3079a59a5e"},
-    {file = "pyparsing-3.2.5.tar.gz", hash = "sha256:2df8d5b7b2802ef88e8d016a2eb9c7aeaa923529cd251ed0fe4608275d4105b6"},
+    {file = "pyparsing-3.3.0-py3-none-any.whl", hash = "sha256:d15038408e0097d3a01e7e0846731f7f2450c5b6e4a75a52baabd6bbf24585be"},
+    {file = "pyparsing-3.3.0.tar.gz", hash = "sha256:0de16f2661afbab11fe6645d9472c3b96968d2fffea5b0cc9da88f5be286f039"},
 ]
 
 [package.extras]
@@ -1816,14 +1816,14 @@ files = [
 
 [[package]]
 name = "types-authlib"
-version = "1.6.6.20251214"
+version = "1.6.6.20251220"
 description = "Typing stubs for Authlib"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "types_authlib-1.6.6.20251214-py3-none-any.whl", hash = "sha256:778e352a486198a3999641bf1e311b04b6883e68a74cfb828518abf200fb0f7f"},
-    {file = "types_authlib-1.6.6.20251214.tar.gz", hash = "sha256:79bf244e6f8d45ddb428bd42f14b105f43fd79c097fe14c89f7a3fdfc7eb8c8c"},
+    {file = "types_authlib-1.6.6.20251220-py3-none-any.whl", hash = "sha256:dd1d545fe4c498686c0285d59dc950d87d977d294fc430617c91e0a11f6f4f2b"},
+    {file = "types_authlib-1.6.6.20251220.tar.gz", hash = "sha256:a2369f23732fe88d5087ed720864f40d0319c19e8411d85a4930e31018996f90"},
 ]
 
 [package.dependencies]
