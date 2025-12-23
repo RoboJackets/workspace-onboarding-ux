@@ -77,7 +77,7 @@ def init_celery(flask: Flask) -> Celery:
     new_celery_app.config_from_object(flask.config, namespace="CELERY")
     new_celery_app.set_default()
     flask.extensions["celery"] = new_celery_app
-    return new_celery_app
+    return new_celery_app  # type: ignore
 
 
 sentry_sdk.init(
