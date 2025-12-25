@@ -251,6 +251,8 @@ job "workspace-onboarding-ux" {
           "worker",
           "--loglevel",
           "DEBUG",
+          "--pool",
+          "solo",
         ]
       }
 
