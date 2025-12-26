@@ -30,7 +30,7 @@ from hubspot.settings.users.exceptions import NotFoundException  # type: ignore
 
 from ldap3 import Connection, Server
 
-from requests import get, post
+from requests import post
 
 import sentry_sdk
 from sentry_sdk import set_user
@@ -114,6 +114,14 @@ keycloak = OAuth2Session(
     leeway=5,
 )
 keycloak.fetch_token()
+
+apiary = OAuth2Session(
+    client_id=app.config["APIARY_CLIENT_ID"],
+    client_secret=app.config["APIARY_CLIENT_SECRET"],
+    token_endpoint=app.config["APIARY_URL"] + "/oauth/token",
+    leeway=300,  # Discard tokens 5 minutes before expiration
+)
+apiary.fetch_token()
 
 cache = Cache(app)
 cache.clear()
@@ -218,12 +226,9 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
             return slack_user_id  # type: ignore
 
     if "username" in keycloak_user and keycloak_user["username"] is not None:
-        apiary_user_response = get(
+        apiary_user_response = apiary.get(  # type: ignore
             url=app.config["APIARY_URL"] + "/api/v1/users/" + keycloak_user["username"],
-            headers={
-                "Authorization": "Bearer " + app.config["APIARY_TOKEN"],
-                "Accept": "application/json",
-            },
+            headers={"Accept": "application/json"},
             timeout=(5, 5),
         )
 
@@ -373,14 +378,11 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
         ),
     )
 
-    apiary_user_response = get(
+    apiary_user_response = apiary.get(  # type: ignore
         url=app.config["APIARY_URL"]
         + "/api/v1/users/"
         + get_keycloak_user_response.json()["username"],
-        headers={
-            "Authorization": "Bearer " + app.config["APIARY_TOKEN"],
-            "Accept": "application/json",
-        },
+        headers={"Accept": "application/json"},
         timeout=(5, 5),
     )
 
@@ -687,10 +689,9 @@ def login() -> Any:  # pylint: disable=too-many-branches
     else:
         session["user_state"] = "ineligible"
 
-    apiary_user_response = get(
+    apiary_user_response = apiary.get(  # type: ignore
         url=app.config["APIARY_URL"] + "/api/v1/users/" + userinfo["preferred_username"],
         headers={
-            "Authorization": "Bearer " + app.config["APIARY_TOKEN"],
             "Accept": "application/json",
             "x-cache-bypass": "bypass",
         },
