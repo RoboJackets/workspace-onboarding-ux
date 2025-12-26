@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+This repository is a Python Flask application. It uses Poetry for dependency management.
+
+Any Python commands must be prefixed with "poetry run" so that they execute within the virtual environment created by Poetry.
+
+All code should pass linters:
+
+poetry run black workspace_onboarding_ux.py
+
+poetry run flake8 workspace_onboarding_ux.py
+
+poetry run pylint workspace_onboarding_ux.py
+
+poetry run mypy --strict --scripts-are-modules workspace_onboarding_ux.py
