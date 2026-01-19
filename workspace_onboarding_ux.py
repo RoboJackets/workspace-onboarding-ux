@@ -116,6 +116,7 @@ keycloak = OAuth2Session(
     token_endpoint=app.config["KEYCLOAK_SERVER"] + "/realms/master/protocol/openid-connect/token",
     leeway=5,
 )
+keycloak.headers.update({"User-Agent": USER_AGENT})  # type: ignore[attr-defined]
 keycloak.fetch_token()
 
 apiary = OAuth2Session(
@@ -124,6 +125,7 @@ apiary = OAuth2Session(
     token_endpoint=app.config["APIARY_URL"] + "/oauth/token",
     leeway=300,  # Discard tokens 5 minutes before expiration
 )
+apiary.headers.update({"User-Agent": USER_AGENT})  # type: ignore[attr-defined]
 apiary.fetch_token()
 
 cache = Cache(app)
@@ -196,7 +198,6 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + keycloak_user_id,
-        headers={"User-Agent": USER_AGENT},
         timeout=(5, 5),
     )
     get_keycloak_user_response.raise_for_status()
@@ -232,7 +233,7 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
     if "username" in keycloak_user and keycloak_user["username"] is not None:
         apiary_user_response = apiary.get(  # type: ignore
             url=app.config["APIARY_URL"] + "/api/v1/users/" + keycloak_user["username"],
-            headers={"Accept": "application/json", "User-Agent": USER_AGENT},
+            headers={"Accept": "application/json"},
             timeout=(5, 5),
         )
 
@@ -321,7 +322,6 @@ def remove_eligible_role(keycloak_user_id: str) -> None:
         + keycloak_user_id
         + "/role-mappings/clients/"
         + app.config["KEYCLOAK_CLIENT_UUID"],
-        headers={"User-Agent": USER_AGENT},
         timeout=(5, 5),
         json=[{"id": app.config["KEYCLOAK_CLIENT_ROLE_ELIGIBLE"], "name": "eligible"}],
     )
@@ -361,7 +361,6 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + keycloak_user_id,
-        headers={"User-Agent": USER_AGENT},
         timeout=(5, 5),
     )
     get_keycloak_user_response.raise_for_status()
@@ -389,7 +388,7 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
         url=app.config["APIARY_URL"]
         + "/api/v1/users/"
         + get_keycloak_user_response.json()["username"],
-        headers={"Accept": "application/json", "User-Agent": USER_AGENT},
+        headers={"Accept": "application/json"},
         timeout=(5, 5),
     )
 
@@ -486,7 +485,6 @@ def notify_slack_account_created(keycloak_user_id: str) -> None:
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + keycloak_user_id,
-        headers={"User-Agent": USER_AGENT},
         timeout=(5, 5),
     )
     keycloak_user_response.raise_for_status()
@@ -600,7 +598,6 @@ def index() -> Any:
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + session["sub"],
-        headers={"User-Agent": USER_AGENT},
         timeout=(5, 5),
     )
     keycloak_user_response.raise_for_status()
@@ -702,7 +699,6 @@ def login() -> Any:  # pylint: disable=too-many-branches
         url=app.config["APIARY_URL"] + "/api/v1/users/" + userinfo["preferred_username"],
         headers={
             "Accept": "application/json",
-            "User-Agent": USER_AGENT,
             "x-cache-bypass": "bypass",
         },
         params={"include": "roles,teams"},
@@ -768,7 +764,6 @@ def check_availability() -> Any:
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users",
-        headers={"User-Agent": USER_AGENT},
         params={
             "q": "googleWorkspaceAccount:" + requested_email_address,
         },
@@ -830,7 +825,6 @@ def submit() -> Any:
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + session["sub"],
-        headers={"User-Agent": USER_AGENT},
         timeout=(5, 5),
     )
     get_keycloak_user_response.raise_for_status()
@@ -853,7 +847,6 @@ def submit() -> Any:
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
         + session["sub"],
-        headers={"User-Agent": USER_AGENT},
         json=new_user,
         timeout=(5, 5),
     )
@@ -904,7 +897,6 @@ def handle_slack_event() -> Dict[str, str]:
             + str(UUID(payload["actions"][0]["value"]))
             + "/role-mappings/clients/"
             + app.config["KEYCLOAK_CLIENT_UUID"],
-            headers={"User-Agent": USER_AGENT},
             timeout=(5, 5),
             json=[{"id": app.config["KEYCLOAK_CLIENT_ROLE_ELIGIBLE"], "name": "eligible"}],
         )
