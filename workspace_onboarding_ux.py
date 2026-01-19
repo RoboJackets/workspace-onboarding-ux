@@ -116,7 +116,7 @@ keycloak = OAuth2Session(
     token_endpoint=app.config["KEYCLOAK_SERVER"] + "/realms/master/protocol/openid-connect/token",
     leeway=5,
 )
-keycloak.headers.update({"User-Agent": USER_AGENT})  # type: ignore[attr-defined]
+keycloak.headers["User-Agent"] = USER_AGENT  # type: ignore[attr-defined]
 keycloak.fetch_token()
 
 apiary = OAuth2Session(
@@ -125,7 +125,7 @@ apiary = OAuth2Session(
     token_endpoint=app.config["APIARY_URL"] + "/oauth/token",
     leeway=300,  # Discard tokens 5 minutes before expiration
 )
-apiary.headers.update({"User-Agent": USER_AGENT})  # type: ignore[attr-defined]
+apiary.headers["User-Agent"] = USER_AGENT  # type: ignore[attr-defined]
 apiary.fetch_token()
 
 cache = Cache(app)
