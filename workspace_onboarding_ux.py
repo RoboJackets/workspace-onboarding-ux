@@ -328,7 +328,7 @@ def remove_eligible_role(keycloak_user_id: str) -> None:
     remove_eligible_role_response.raise_for_status()
 
 
-@shared_task
+@shared_task(max_retries=0)
 def import_user_to_org_chart(workspace_user_id: str) -> None:
     """
     Notify OrgChart after a user is added to Google Workspace
