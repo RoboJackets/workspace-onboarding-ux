@@ -61,6 +61,8 @@ job "workspace-onboarding-ux" {
 
   type = "service"
 
+  priority = 40
+
   group "workspace-onboarding-ux" {
     network {
       port "http" {}
