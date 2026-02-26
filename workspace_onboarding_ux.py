@@ -21,7 +21,7 @@ from flask.helpers import get_debug_flag, redirect, url_for
 
 from flask_caching import Cache
 
-from flask_minify import Minify
+from flask_minify import Minify  # type: ignore
 
 from google.oauth2 import service_account
 
