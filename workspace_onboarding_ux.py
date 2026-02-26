@@ -20,6 +20,7 @@ from flask import Flask, render_template, request, session
 from flask.helpers import get_debug_flag, redirect, url_for
 
 from flask_caching import Cache
+from flask_minify import Minify
 
 from google.oauth2 import service_account
 
@@ -99,6 +100,9 @@ sentry_sdk.init(
 )
 
 app = Flask(__name__)
+
+Minify(app=app, caching_limit=0, go=False)
+
 app.config.from_prefixed_env()
 
 celery_app = init_celery(app)
