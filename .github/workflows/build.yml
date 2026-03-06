@@ -85,3 +85,17 @@ jobs:
     with:
       image-digest: ${{ needs.docker.outputs.image-digest }}
       environment: production
+
+  prune-stale-images:
+    name: Prune stale images
+    needs: [docker, deploy-production]
+    permissions:
+      packages: write
+    steps:
+      - uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: robojackets
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: workspace-onboarding-ux
+          skip-shas: ${{ needs.docker.outputs.image-digest }}
+          cut-off: 0s
