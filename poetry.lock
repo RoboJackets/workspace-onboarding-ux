@@ -836,8 +836,8 @@ files = [
 google-auth = ">=2.14.1,<3.0.0"
 googleapis-common-protos = ">=1.63.2,<2.0.0"
 proto-plus = [
+    {version = ">=1.22.3,<2.0.0"},
     {version = ">=1.25.0,<2.0.0", markers = "python_version >= \"3.13\""},
-    {version = ">=1.22.3,<2.0.0", markers = "python_version < \"3.13\""},
 ]
 protobuf = ">=4.25.8,<8.0.0"
 requests = ">=2.20.0,<3.0.0"
@@ -1409,14 +1409,14 @@ files = [
 
 [[package]]
 name = "packaging"
-version = "26.0"
+version = "26.1"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.8"
 groups = ["main", "dev"]
 files = [
-    {file = "packaging-26.0-py3-none-any.whl", hash = "sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529"},
-    {file = "packaging-26.0.tar.gz", hash = "sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4"},
+    {file = "packaging-26.1-py3-none-any.whl", hash = "sha256:5d9c0669c6285e491e0ced2eee587eaf67b670d94a19e94e3984a481aba6802f"},
+    {file = "packaging-26.1.tar.gz", hash = "sha256:f042152b681c4bfac5cae2742a55e103d27ab2ec0f3d88037136b6bfe7c9c5de"},
 ]
 
 [[package]]
@@ -1607,8 +1607,8 @@ files = [
 astroid = ">=4.0.2,<=4.1.dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
-    {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
     {version = ">=0.2", markers = "python_version < \"3.11\""},
+    {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
     {version = ">=0.3.6", markers = "python_version == \"3.11\""},
 ]
 isort = ">=5,<5.13 || >5.13,<9"
@@ -2019,14 +2019,14 @@ files = [
 
 [[package]]
 name = "types-authlib"
-version = "1.6.9.20260408"
+version = "1.6.10.20260414"
 description = "Typing stubs for Authlib"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "types_authlib-1.6.9.20260408-py3-none-any.whl", hash = "sha256:8179cd7c6f98cefc4bd138318beedee48cecb55c7665a31196a4291cd4fe2cf7"},
-    {file = "types_authlib-1.6.9.20260408.tar.gz", hash = "sha256:1a9ac9802d8912ad66f5480b1ff3890df57fb54bcd1cdddb2ae1383fd11ab819"},
+    {file = "types_authlib-1.6.10.20260414-py3-none-any.whl", hash = "sha256:86f86381d93fa81699cf9b5d57e351a60517237d3661788ddb90cdde3dd1db1e"},
+    {file = "types_authlib-1.6.10.20260414.tar.gz", hash = "sha256:cc4507efc6a27a3402beb29d91e23b375bf255ad71cb95b0e56689926719cf63"},
 ]
 
 [package.dependencies]
