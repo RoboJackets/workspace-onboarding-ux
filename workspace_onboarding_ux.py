@@ -704,7 +704,6 @@ def login() -> Any:  # pylint: disable=too-many-branches
         url=app.config["APIARY_URL"] + "/api/v1/users/" + userinfo["preferred_username"],
         headers={
             "Accept": "application/json",
-            "x-cache-bypass": "bypass",
         },
         params={"include": "roles,teams"},
         timeout=(5, 5),
