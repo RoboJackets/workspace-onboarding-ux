@@ -74,6 +74,12 @@
             "major": {
                 "enabled": true
             }
+        },
+        {
+            "matchManagers": [
+                "github-actions"
+            ],
+            "rangeStrategy": "replace"
         }
     ]
 }
