@@ -134,7 +134,6 @@ apiary.headers["User-Agent"] = USER_AGENT  # type: ignore[attr-defined]
 apiary.fetch_token()
 
 cache = Cache(app)
-cache.clear()
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
