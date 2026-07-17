@@ -75,15 +75,11 @@ type FormState
     | Submitting
 
 
-type alias CheckAvailabilityResult =
-    { available : Bool }
-
-
 type alias Model =
     { firstName : String
     , lastName : String
     , emailAddress : String
-    , checkAvailabilityResult : Maybe (Result Http.Error CheckAvailabilityResult)
+    , checkAvailabilityResult : Maybe (Result Http.Error Bool)
     , showValidation : Bool
     , formState : FormState
     , nextAction : NextAction
@@ -99,7 +95,7 @@ type Msg
     | LastNameInput String
     | EmailAddressInput String
     | LocalStorageSaved Bool
-    | CheckAvailabilityResultReceived (Result Http.Error CheckAvailabilityResult)
+    | CheckAvailabilityResultReceived (Result Http.Error Bool)
     | NoOpMsg
 
 
@@ -213,23 +209,21 @@ update msg model =
                 , checkAvailabilityResult = Just result
                 , formState =
                     case result of
-                        Ok availabilityResult ->
-                            if availabilityResult.available then
-                                Submitting
+                        Ok True ->
+                            Submitting
 
-                            else
-                                Editing
+                        Ok False ->
+                            Editing
 
                         Err _ ->
                             Editing
               }
             , case result of
-                Ok availabilityResult ->
-                    if availabilityResult.available then
-                        submitForm True
+                Ok True ->
+                    submitForm True
 
-                    else
-                        Task.attempt (\_ -> NoOpMsg) (focus "email_address")
+                Ok False ->
+                    Task.attempt (\_ -> NoOpMsg) (focus "email_address")
 
                 Err _ ->
                     Task.attempt (\_ -> NoOpMsg) (focus "email_address")
@@ -415,7 +409,7 @@ validateName whichName nameValue =
         Valid
 
 
-validateEmailAddress : String -> Maybe (Result Http.Error CheckAvailabilityResult) -> ValidationResult
+validateEmailAddress : String -> Maybe (Result Http.Error Bool) -> ValidationResult
 validateEmailAddress emailAddress maybeCheckAvailabilityResult =
     case Email.parse (String.toLower emailAddress) of
         Ok addressParts ->
@@ -441,12 +435,11 @@ validateEmailAddress emailAddress maybeCheckAvailabilityResult =
                             case maybeCheckAvailabilityResult of
                                 Just checkAvailabilityResult ->
                                     case checkAvailabilityResult of
-                                        Ok result ->
-                                            if result.available then
-                                                Valid
+                                        Ok True ->
+                                            Valid
 
-                                            else
-                                                Invalid "This email address isn't available — if you'd like to use it, please ask in #it-helpdesk"
+                                        Ok False ->
+                                            Invalid "This email address isn't available — if you'd like to use it, please ask in #it-helpdesk"
 
                                         Err _ ->
                                             Invalid "There was an error confirming this email address is available"
@@ -528,10 +521,9 @@ checkAvailability emailAddress =
         }
 
 
-checkAvailabilityResultDecoder : Decoder CheckAvailabilityResult
+checkAvailabilityResultDecoder : Decoder Bool
 checkAvailabilityResultDecoder =
-    Json.Decode.map CheckAvailabilityResult
-        (at [ "available" ] Json.Decode.bool)
+    field "available" Json.Decode.bool
 
 
 buildInitialModel : Value -> Model
