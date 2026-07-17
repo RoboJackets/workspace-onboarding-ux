@@ -505,8 +505,10 @@ stringifyModel model =
 
 checkAvailability : String -> Cmd Msg
 checkAvailability emailAddress =
-    Http.post
-        { url =
+    Http.request
+        { method = "POST"
+        , headers = []
+        , url =
             Url.Builder.absolute
                 [ "check-availability" ]
                 []
@@ -517,6 +519,8 @@ checkAvailability emailAddress =
                     ]
                 )
         , expect = expectJson CheckAvailabilityResultReceived checkAvailabilityResultDecoder
+        , timeout = Just 10000
+        , tracker = Nothing
         }
 
 
