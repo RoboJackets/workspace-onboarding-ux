@@ -760,7 +760,7 @@ def check_availability() -> Any:
     if "emailAddress" not in request.json:
         raise BadRequest("Missing email address")
 
-    requested_email_address = request.json["emailAddress"].lower()
+    requested_email_address = request.json["emailAddress"].strip().lower()
 
     search_keycloak_user_response = keycloak.get(  # type: ignore
         url=app.config["KEYCLOAK_SERVER"]
@@ -814,7 +814,7 @@ def submit() -> Any:
                     "givenName": request.form["first_name"].strip(),
                     "familyName": request.form["last_name"].strip(),
                 },
-                "primaryEmail": request.form["email_address"].strip(),
+                "primaryEmail": request.form["email_address"].strip().lower(),
                 "password": uuid4().hex,
             },
             resolveConflictAccount=True,
