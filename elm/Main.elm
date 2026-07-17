@@ -418,8 +418,11 @@ validateEmailAddress emailAddress maybeCheckAvailabilityResult =
                                         Ok False ->
                                             Invalid "This email address isn't available — if you'd like to use it, please ask in #it-helpdesk"
 
-                                        Err _ ->
-                                            Invalid "There was an error confirming this email address is available"
+                                        Err error ->
+                                            Invalid
+                                                ("There was an error confirming this email address is available: "
+                                                    ++ httpErrorToString error
+                                                )
 
                                 Nothing ->
                                     Valid
@@ -468,6 +471,25 @@ feedbackText validation =
 
         Invalid text ->
             text
+
+
+httpErrorToString : Http.Error -> String
+httpErrorToString error =
+    case error of
+        Http.BadUrl url ->
+            "Invalid URL: " ++ url
+
+        Http.Timeout ->
+            "The request timed out"
+
+        Http.NetworkError ->
+            "Network error"
+
+        Http.BadStatus status ->
+            "Unexpected HTTP status code " ++ String.fromInt status
+
+        Http.BadBody body ->
+            "Unexpected response body: " ++ body
 
 
 stringifyModel : Model -> String
