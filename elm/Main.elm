@@ -65,6 +65,7 @@ type ValidationResult
 
 type FormState
     = Editing
+    | CheckingAvailability
     | Submitting
 
 
@@ -75,7 +76,6 @@ type alias Model =
     , checkAvailabilityResult : Maybe (Result Http.Error Bool)
     , showValidation : Bool
     , formState : FormState
-    , checkingAvailability : Bool
     }
 
 
@@ -85,7 +85,6 @@ type Msg
     | FirstNameInput String
     | LastNameInput String
     | EmailAddressInput String
-    | LocalStorageSaved
     | CheckAvailabilityResultReceived (Result Http.Error Bool)
     | NoOpMsg
 
@@ -115,75 +114,51 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FormSubmitted ->
-            ( { model
-                | showValidation = True
-                , formState =
-                    case validateModel model of
-                        Invalid _ ->
-                            Editing
+            if model.formState /= Editing then
+                ( model, Cmd.none )
 
-                        Valid ->
-                            Submitting
-                , checkingAvailability =
-                    case validateModel model of
-                        Invalid _ ->
-                            False
+            else
+                case validateModel model of
+                    Invalid fieldId ->
+                        ( { model | showValidation = True }
+                        , Task.attempt (\_ -> NoOpMsg) (focus fieldId)
+                        )
 
-                        Valid ->
-                            True
-              }
-            , case validateModel model of
-                Invalid fieldId ->
-                    Task.attempt (\_ -> NoOpMsg) (focus fieldId)
-
-                Valid ->
-                    saveToLocalStorage (stringifyModel model)
-            )
+                    Valid ->
+                        ( { model
+                            | showValidation = True
+                            , formState = CheckingAvailability
+                            , checkAvailabilityResult = Nothing
+                          }
+                        , Cmd.batch
+                            [ saveToLocalStorage (stringifyModel model)
+                            , checkAvailability model.emailAddress
+                            ]
+                        )
 
         FormChanged ->
-            ( { model | checkingAvailability = False }, saveToLocalStorage (stringifyModel model) )
+            ( model, saveToLocalStorage (stringifyModel model) )
 
         FirstNameInput firstName ->
-            ( { model
-                | firstName = firstName
-                , checkingAvailability = False
-              }
-            , Cmd.none
-            )
+            ( { model | firstName = firstName }, Cmd.none )
 
         LastNameInput lastName ->
-            ( { model
-                | lastName = lastName
-                , checkingAvailability = False
-              }
-            , Cmd.none
-            )
+            ( { model | lastName = lastName }, Cmd.none )
 
         EmailAddressInput emailAddress ->
             ( { model
                 | emailAddress = emailAddress
                 , checkAvailabilityResult = Nothing
-                , checkingAvailability = False
               }
             , Cmd.none
             )
 
         NoOpMsg ->
-            ( { model | checkingAvailability = False }, Cmd.none )
-
-        LocalStorageSaved ->
-            ( { model | checkingAvailability = False }
-            , if model.checkingAvailability then
-                checkAvailability model.emailAddress
-
-              else
-                Cmd.none
-            )
+            ( model, Cmd.none )
 
         CheckAvailabilityResultReceived result ->
             ( { model
-                | checkingAvailability = False
-                , checkAvailabilityResult = Just result
+                | checkAvailabilityResult = Just result
                 , formState =
                     case result of
                         Ok True ->
@@ -209,7 +184,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    localStorageSaved (always LocalStorageSaved)
+    Sub.none
 
 
 view : Model -> Browser.Document Msg
@@ -442,7 +417,7 @@ validateModel model =
     else if not (isValid (validateName "last" model.lastName)) then
         Invalid "last_name"
 
-    else if not (isValid (validateEmailAddress model.emailAddress model.checkAvailabilityResult)) then
+    else if not (isValid (validateEmailAddress model.emailAddress Nothing)) then
         Invalid "email_address"
 
     else
@@ -558,7 +533,6 @@ buildInitialModel value =
         Nothing
         False
         Editing
-        False
 
 
 blankString : String -> Bool
@@ -574,6 +548,3 @@ port submitForm : Bool -> Cmd msg
 
 
 port saveToLocalStorage : String -> Cmd msg
-
-
-port localStorageSaved : (() -> msg) -> Sub msg

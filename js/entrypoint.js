@@ -1,17 +1,32 @@
+let localData = null;
+
+try {
+    localData = localStorage.getItem("formFields");
+} catch (error) {
+    localData = null;
+}
+
 const app = Elm.Main.init(
     {
         flags: {
             serverData: window.serverData,
-            localData: localStorage.getItem("formFields"),
+            localData: localData,
         }
     }
 );
 
 app.ports.saveToLocalStorage.subscribe(function (message) {
-    localStorage.setItem("formFields", message);
-    app.ports.localStorageSaved.send(null);
+    try {
+        localStorage.setItem("formFields", message);
+    } catch (error) {
+        // Draft persistence is best-effort; submit does not depend on it.
+    }
 });
 
 app.ports.submitForm.subscribe(function (message) {
-    document.getElementsByTagName("form").item(0).submit()
+    const form = document.getElementsByTagName("form").item(0);
+
+    if (form !== null) {
+        form.submit();
+    }
 });
