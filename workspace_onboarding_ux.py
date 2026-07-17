@@ -896,6 +896,149 @@ def check_availability() -> Any:
     return {"available": is_email_available(requested_email_address)}
 
 
+def get_apiary_user(username: str) -> Union[Dict[str, Any], None]:
+    """
+    Fetch a user from Apiary by username. Returns None if the user does not exist.
+    """
+    apiary_user_response = apiary.get(  # type: ignore
+        url=app.config["APIARY_URL"] + "/api/v1/users/" + username,
+        headers={"Accept": "application/json"},
+        timeout=(5, 5),
+    )
+
+    if apiary_user_response.status_code == 200:
+        return apiary_user_response.json()["user"]  # type: ignore
+
+    if apiary_user_response.status_code == 404:
+        return None
+
+    apiary_user_response.raise_for_status()
+    return None
+
+
+def get_manager_google_workspace_email(manager_uid: str) -> Union[str, None]:
+    """
+    Resolve a manager's Google Workspace email via Keycloak, if they have an account.
+    """
+    search_keycloak_user_response = keycloak.get(  # type: ignore
+        url=keycloak_server + "/admin/realms/" + app.config["KEYCLOAK_REALM"] + "/users",
+        params={
+            "username": manager_uid,
+            "exact": "true",
+        },
+        timeout=(5, 5),
+    )
+    search_keycloak_user_response.raise_for_status()
+
+    keycloak_users = search_keycloak_user_response.json()
+
+    if len(keycloak_users) != 1:
+        return None
+
+    manager_keycloak_user = keycloak_users[0]
+    attributes = manager_keycloak_user.get("attributes")
+
+    if attributes is None:
+        return None
+
+    google_workspace_accounts = attributes.get("googleWorkspaceAccount")
+
+    if google_workspace_accounts is None or len(google_workspace_accounts) == 0:
+        return None
+
+    return google_workspace_accounts[0]  # type: ignore
+
+
+def is_primary_team_project_manager(
+    apiary_user: Dict[str, Any], primary_team: Dict[str, Any]
+) -> bool:
+    """
+    Return True if the Apiary user is the project manager of their primary team.
+    """
+    apiary_team_response = apiary.get(  # type: ignore
+        url=app.config["APIARY_URL"] + "/api/v1/teams/" + str(primary_team["id"]),
+        headers={"Accept": "application/json"},
+        params={"include": "projectManager"},
+        timeout=(5, 5),
+    )
+
+    if apiary_team_response.status_code == 404:
+        return False
+
+    if apiary_team_response.status_code != 200:
+        apiary_team_response.raise_for_status()
+        return False
+
+    project_manager = apiary_team_response.json()["team"].get("project_manager")
+
+    if project_manager is None or project_manager.get("id") is None:
+        return False
+
+    return str(project_manager["id"]) == str(apiary_user["id"])
+
+
+def build_google_workspace_user_body(
+    first_name: str,
+    last_name: str,
+    email_address: str,
+    apiary_user: Union[Dict[str, Any], None],
+) -> Dict[str, Any]:
+    """
+    Build the Google Directory user insert body, including optional Apiary-backed fields.
+    """
+    body: Dict[str, Any] = {
+        "name": {
+            "givenName": first_name,
+            "familyName": last_name,
+        },
+        "primaryEmail": email_address,
+        "password": uuid4().hex,
+    }
+
+    if apiary_user is None:
+        return body
+
+    if apiary_user.get("phone_verified") is True and apiary_user.get("phone"):
+        body["phones"] = [
+            {
+                "value": apiary_user["phone"],
+                "type": "mobile",
+            }
+        ]
+
+    primary_team = apiary_user.get("primary_team")
+
+    if (
+        primary_team is not None
+        and primary_team.get("id") is not None
+        and primary_team.get("name") is not None
+    ):
+        organization: Dict[str, Any] = {
+            "department": primary_team["name"],
+            "primary": True,
+        }
+
+        if is_primary_team_project_manager(apiary_user, primary_team):
+            organization["title"] = "Project Manager"
+
+        body["organizations"] = [organization]
+
+    manager = apiary_user.get("manager")
+
+    if manager is not None and manager.get("uid") is not None:
+        manager_email = get_manager_google_workspace_email(manager["uid"])
+
+        if manager_email is not None:
+            body["relations"] = [
+                {
+                    "value": manager_email,
+                    "type": "manager",
+                }
+            ]
+
+    return body
+
+
 @app.post("/")
 def submit() -> Any:
     """
@@ -930,22 +1073,6 @@ def submit() -> Any:
     if not is_email_available(email_address):
         raise Conflict("This email address isn't available")
 
-    new_workspace_user = (
-        get_google_workspace_client()
-        .insert(
-            body={
-                "name": {
-                    "givenName": first_name,
-                    "familyName": last_name,
-                },
-                "primaryEmail": email_address,
-                "password": uuid4().hex,
-            },
-            resolveConflictAccount=True,
-        )
-        .execute()
-    )
-
     get_keycloak_user_response = keycloak.get(  # type: ignore
         url=keycloak_server
         + "/admin/realms/"
@@ -957,6 +1084,20 @@ def submit() -> Any:
     get_keycloak_user_response.raise_for_status()
 
     new_user = get_keycloak_user_response.json()
+    keycloak_username = new_user.get("username")
+    apiary_user = get_apiary_user(keycloak_username) if keycloak_username is not None else None
+
+    new_workspace_user = (
+        get_google_workspace_client()
+        .insert(
+            body=build_google_workspace_user_body(
+                first_name, last_name, email_address, apiary_user
+            ),
+            resolveConflictAccount=True,
+        )
+        .execute()
+    )
+
     if "id" in new_user:
         del new_user["id"]
 
