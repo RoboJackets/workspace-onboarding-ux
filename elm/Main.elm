@@ -411,7 +411,7 @@ validateModel model =
     else if not (isValid (validateName "last" model.lastName)) then
         Invalid "last_name"
 
-    else if not (isValid (validateEmailAddress model.emailAddress Nothing)) then
+    else if not (isValid (validateEmailAddress model.emailAddress model.checkAvailabilityResult)) then
         Invalid "email_address"
 
     else
