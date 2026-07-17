@@ -47,8 +47,12 @@ from slack_sdk.signature import SignatureVerifier
 
 from werkzeug.exceptions import BadRequest, Unauthorized
 
-USER_AGENT = "WorkspaceOnboarding/" + os.environ.get("NOMAD_SHORT_ALLOC_ID", "local")
-
+USER_AGENT = (
+    "WorkspaceOnboarding/"
+    + os.environ.get("NOMAD_TASK_NAME", "local")
+    + "/"
+    + os.environ.get("NOMAD_SHORT_ALLOC_ID", "local")
+)
 
 def traces_sampler(sampling_context: Dict[str, Dict[str, str]]) -> bool:
     """
