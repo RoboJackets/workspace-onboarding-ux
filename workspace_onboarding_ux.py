@@ -959,16 +959,10 @@ def ping() -> Dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/clear-cache")
-def clear_cache() -> Dict[str, str]:
+@app.cli.command("clear-cache")
+def clear_cache() -> None:
     """
     Clears the cache
     """
-    if "user_state" not in session:
-        raise Unauthorized("Not logged in")
-
-    if session["user_state"] != "provisioned":
-        raise Unauthorized("Not provisioned")
-
     cache.clear()
-    return {"status": "ok"}
+    print("Cache cleared.")

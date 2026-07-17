@@ -195,6 +195,11 @@ job "workspace-onboarding-ux" {
         ATTR_CPU_NUMCORES = "${attr.cpu.numcores}"
       }
 
+      action "clear-cache" {
+        command = "/usr/local/bin/flask"
+        args    = ["clear-cache"]
+      }
+
       service {
         name = "${NOMAD_JOB_NAME}"
 

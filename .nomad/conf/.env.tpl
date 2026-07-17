@@ -7,3 +7,4 @@ FLASK_CACHE_REDIS_URL="unix:///alloc/tmp/redis.sock?db=0&password={{ env "NOMAD_
 FLASK_CELERY_BROKER_URL=redis+socket://:{{ env "NOMAD_ALLOC_ID" }}@/alloc/tmp/redis.sock?virtual_host=1
 FLASK_CELERY_RESULT_BACKEND=redis+socket://:{{ env "NOMAD_ALLOC_ID" }}@/alloc/tmp/redis.sock?virtual_host=2
 FLASK_ORG_CHART_NOTIFY_URL="https://org-chart.robojackets.org/api/import-google-workspace-user"
+FLASK_APP=workspace_onboarding_ux
