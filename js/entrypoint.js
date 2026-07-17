@@ -23,7 +23,7 @@ app.ports.saveToLocalStorage.subscribe(function (message) {
     }
 });
 
-app.ports.submitForm.subscribe(function (message) {
+app.ports.submitForm.subscribe(function () {
     const form = document.getElementsByTagName("form").item(0);
 
     if (form !== null) {

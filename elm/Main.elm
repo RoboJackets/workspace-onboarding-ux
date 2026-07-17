@@ -172,7 +172,7 @@ update msg model =
               }
             , case result of
                 Ok True ->
-                    submitForm True
+                    submitForm ()
 
                 Ok False ->
                     Task.attempt (\_ -> NoOpMsg) (focus "email_address")
@@ -538,7 +538,7 @@ blankString value =
 -- PORTS
 
 
-port submitForm : Bool -> Cmd msg
+port submitForm : () -> Cmd msg
 
 
 port saveToLocalStorage : String -> Cmd msg
