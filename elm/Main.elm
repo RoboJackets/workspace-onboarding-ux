@@ -235,7 +235,7 @@ view model =
                 ]
             , p [ class "mt-4", class "mb-4" ]
                 [ text "RoboJackets uses "
-                , a [ href "https://workspace.google.com", target "_blank" ]
+                , a [ href "https://workspace.google.com", target "_blank", rel "noopener noreferrer" ]
                     [ text "Google Workspace"
                     ]
                 , text " for business email and collaboration tools. Request a Google Workspace account below."
@@ -340,23 +340,23 @@ view model =
                 ]
             , div [ class "mb-4", class "mb-md-5", class "col-12", class "form-text" ]
                 [ text "By creating an account, you confirm that you have read and acknowlege the "
-                , a [ href "https://policies.google.com/terms", class "text-secondary", target "_blank" ] [ text "Google Terms of Service" ]
+                , a [ href "https://policies.google.com/terms", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Google Terms of Service" ]
                 , text ", "
-                , a [ href "https://policies.google.com/privacy", class "text-secondary", target "_blank" ] [ text "Google Privacy Policy" ]
+                , a [ href "https://policies.google.com/privacy", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Google Privacy Policy" ]
                 , text ", "
-                , a [ href "https://support.google.com/accounts/answer/181692", class "text-secondary", target "_blank" ] [ text "Google Workspace Data Access Notice" ]
+                , a [ href "https://support.google.com/accounts/answer/181692", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Google Workspace Data Access Notice" ]
                 , text ", "
-                , a [ href "https://cloud.google.com/terms/cloud-privacy-notice", class "text-secondary", target "_blank" ] [ text "Google Cloud Privacy Notice" ]
+                , a [ href "https://cloud.google.com/terms/cloud-privacy-notice", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Google Cloud Privacy Notice" ]
                 , text ", "
-                , a [ href "https://legal.hubspot.com/terms-of-service", class "text-secondary", target "_blank" ] [ text "HubSpot Customer Terms of Service" ]
+                , a [ href "https://legal.hubspot.com/terms-of-service", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "HubSpot Customer Terms of Service" ]
                 , text ", "
-                , a [ href "https://legal.hubspot.com/privacy-policy", class "text-secondary", target "_blank" ] [ text "HubSpot Privacy Policy" ]
+                , a [ href "https://legal.hubspot.com/privacy-policy", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "HubSpot Privacy Policy" ]
                 , text ", "
-                , a [ href "https://policylibrary.gatech.edu/information-technology/acceptable-use-policy", class "text-secondary", target "_blank" ] [ text "Georgia Institute of Technology Acceptable Use Policy" ]
+                , a [ href "https://policylibrary.gatech.edu/information-technology/acceptable-use-policy", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Georgia Institute of Technology Acceptable Use Policy" ]
                 , text ", "
-                , a [ href "https://policylibrary.gatech.edu/information-technology/cyber-security-policy", class "text-secondary", target "_blank" ] [ text "Georgia Institute of Technology Cyber Security Policy" ]
+                , a [ href "https://policylibrary.gatech.edu/information-technology/cyber-security-policy", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Georgia Institute of Technology Cyber Security Policy" ]
                 , text ", and "
-                , a [ href "https://policylibrary.gatech.edu/information-technology/data-privacy-policy", class "text-secondary", target "_blank" ] [ text "Georgia Institute of Technology Data Privacy Policy" ]
+                , a [ href "https://policylibrary.gatech.edu/information-technology/data-privacy-policy", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Georgia Institute of Technology Data Privacy Policy" ]
                 , text ". You further acknowledge that your Google Workspace account is provided to you for official use only, and you have no expectation of privacy while using your account."
                 ]
             ]
