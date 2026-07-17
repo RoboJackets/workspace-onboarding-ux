@@ -648,7 +648,13 @@ def index() -> Any:
 
         invite_user_to_hubspot.delay(workspace_user["id"])
 
-        return render_template("provisioned.html", workspace_account=session["email_address"])
+        return render_template(
+            "provisioned.html",
+            workspace_account=session["email_address"],
+            slack_team_id=get_slack_team_id(),
+            slack_support_channel_id=app.config["SLACK_SUPPORT_CHANNEL"],
+            slack_support_channel_name=get_slack_channel_name(app.config["SLACK_SUPPORT_CHANNEL"]),
+        )
 
     if session["user_state"] == "ineligible":
         session.clear()
