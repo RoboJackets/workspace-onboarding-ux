@@ -5,8 +5,10 @@ Overengineered web form to facilitate onboarding users to Google Workspace
 import logging
 import os
 from base64 import b64encode
+from email.headerregistry import Address
 from hashlib import file_digest
 from json import loads
+from re import fullmatch
 from typing import Any, Dict, Union
 from urllib.parse import urlparse, urlunparse
 from uuid import UUID, uuid4
@@ -45,7 +47,7 @@ from slack_sdk.errors import SlackApiError
 from slack_sdk.models.blocks import ActionsBlock, ButtonElement, ConfirmObject, SectionBlock
 from slack_sdk.signature import SignatureVerifier
 
-from werkzeug.exceptions import BadRequest, Unauthorized
+from werkzeug.exceptions import BadRequest, Conflict, Unauthorized
 
 USER_AGENT = (
     "WorkspaceOnboarding/"
@@ -53,6 +55,9 @@ USER_AGENT = (
     + "/"
     + os.environ.get("NOMAD_SHORT_ALLOC_ID", "local")
 )
+
+NAME_PATTERN = r"^[a-zA-Z'.\- ]+$"
+
 
 def traces_sampler(sampling_context: Dict[str, Dict[str, str]]) -> bool:
     """
@@ -596,6 +601,96 @@ def invite_user_to_hubspot(self: Task, google_workspace_user_id: str) -> None:  
         )
 
 
+def validate_name(which: str, value: str) -> str:
+    """
+    Validate a first or last name; return the stripped value or raise BadRequest
+    """
+    stripped = value.strip()
+
+    if stripped == "":
+        raise BadRequest("Please enter your " + which + " name")
+
+    if len(stripped) < 2:
+        raise BadRequest("Your " + which + " name must be at least 2 characters")
+
+    if len(stripped) > 60:
+        raise BadRequest("Your " + which + " name may be a maximum of 60 characters")
+
+    if fullmatch(NAME_PATTERN, stripped) is None:
+        raise BadRequest(
+            "Your "
+            + which
+            + " name may only contain letters, spaces, dashes, apostrophes, and periods"
+        )
+
+    return stripped
+
+
+def validate_email_address(value: str) -> str:
+    """
+    Validate a requested @robojackets.org address; return stripped lowercase or raise BadRequest
+    """
+    stripped = value.strip().lower()
+
+    try:
+        address = Address(addr_spec=stripped)
+    except (ValueError, IndexError, TypeError) as exc:
+        raise BadRequest("Please enter a valid email address") from exc
+
+    if address.domain != "robojackets.org":
+        raise BadRequest("Your email address must end in @robojackets.org")
+
+    local_parts = address.username.split(".")
+
+    if len(local_parts) != 2:
+        raise BadRequest(
+            "Your email address should include your first and last name separated by a period"
+        )
+
+    if len(local_parts[0]) < 2:
+        raise BadRequest("Your first name must be at least 2 characters")
+
+    if len(local_parts[1]) < 2:
+        raise BadRequest("Your last name must be at least 2 characters")
+
+    if len(address.username) > 60:
+        raise BadRequest(
+            "Your email address may be a maximum of 60 characters followed by @robojackets.org"
+        )
+
+    if fullmatch(NAME_PATTERN, address.username) is None:
+        raise BadRequest("Your email address may only contain letters, dashes, and periods")
+
+    return stripped
+
+
+def is_email_available(email: str) -> bool:
+    """
+    Return True if the email is not already used in Keycloak or Google Workspace
+    """
+    search_keycloak_user_response = keycloak.get(  # type: ignore
+        url=keycloak_server + "/admin/realms/" + app.config["KEYCLOAK_REALM"] + "/users",
+        params={
+            "q": "googleWorkspaceAccount:" + email,
+        },
+        timeout=(5, 5),
+    )
+    search_keycloak_user_response.raise_for_status()
+
+    if len(search_keycloak_user_response.json()) > 0:
+        return False
+
+    try:
+        get_google_workspace_client().get(userKey=email).execute()
+
+        return False
+    except HttpError as e:
+        if e.status_code != 404:
+            raise e
+
+    return True
+
+
 @app.get("/")
 def index() -> Any:
     """
@@ -787,32 +882,14 @@ def check_availability() -> Any:
         }
     )
 
-    if "emailAddress" not in request.json:
+    body = request.get_json(silent=True)
+
+    if not isinstance(body, dict) or "emailAddress" not in body:
         raise BadRequest("Missing email address")
 
-    requested_email_address = request.json["emailAddress"].strip().lower()
+    requested_email_address = validate_email_address(str(body["emailAddress"]))
 
-    search_keycloak_user_response = keycloak.get(  # type: ignore
-        url=keycloak_server + "/admin/realms/" + app.config["KEYCLOAK_REALM"] + "/users",
-        params={
-            "q": "googleWorkspaceAccount:" + requested_email_address,
-        },
-        timeout=(5, 5),
-    )
-    search_keycloak_user_response.raise_for_status()
-
-    if len(search_keycloak_user_response.json()) > 0:
-        return {"available": False}
-
-    try:
-        get_google_workspace_client().get(userKey=requested_email_address).execute()
-
-        return {"available": False}
-    except HttpError as e:
-        if e.status_code != 404:
-            raise e
-
-    return {"available": True}
+    return {"available": is_email_available(requested_email_address)}
 
 
 @app.post("/")
@@ -833,15 +910,31 @@ def submit() -> Any:
         }
     )
 
+    if "first_name" not in request.form:
+        raise BadRequest("Missing first name")
+
+    if "last_name" not in request.form:
+        raise BadRequest("Missing last name")
+
+    if "email_address" not in request.form:
+        raise BadRequest("Missing email address")
+
+    first_name = validate_name("first", request.form["first_name"])
+    last_name = validate_name("last", request.form["last_name"])
+    email_address = validate_email_address(request.form["email_address"])
+
+    if not is_email_available(email_address):
+        raise Conflict("This email address isn't available")
+
     new_workspace_user = (
         get_google_workspace_client()
         .insert(
             body={
                 "name": {
-                    "givenName": request.form["first_name"].strip(),
-                    "familyName": request.form["last_name"].strip(),
+                    "givenName": first_name,
+                    "familyName": last_name,
                 },
-                "primaryEmail": request.form["email_address"].strip().lower(),
+                "primaryEmail": email_address,
                 "password": uuid4().hex,
             },
             resolveConflictAccount=True,

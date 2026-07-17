@@ -1,5 +1,5 @@
 [BASIC]
-disable=line-too-long,no-member
+disable=line-too-long,no-member,too-many-lines
 
 [FORMAT]
 expected-line-ending-format=LF
