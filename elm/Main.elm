@@ -58,11 +58,6 @@ localDataFieldName =
 -- TYPES
 
 
-type NextAction
-    = CheckAvailability
-    | NoOpNextAction
-
-
 type ValidationResult
     = Valid
     | Invalid String
@@ -80,7 +75,7 @@ type alias Model =
     , checkAvailabilityResult : Maybe (Result Http.Error Bool)
     , showValidation : Bool
     , formState : FormState
-    , nextAction : NextAction
+    , checkingAvailability : Bool
     }
 
 
@@ -129,13 +124,13 @@ update msg model =
 
                         Valid ->
                             Submitting
-                , nextAction =
+                , checkingAvailability =
                     case validateModel model of
                         Invalid _ ->
-                            NoOpNextAction
+                            False
 
                         Valid ->
-                            CheckAvailability
+                            True
               }
             , case validateModel model of
                 Invalid fieldId ->
@@ -146,12 +141,12 @@ update msg model =
             )
 
         FormChanged ->
-            ( { model | nextAction = NoOpNextAction }, saveToLocalStorage (stringifyModel model) )
+            ( { model | checkingAvailability = False }, saveToLocalStorage (stringifyModel model) )
 
         FirstNameInput firstName ->
             ( { model
                 | firstName = firstName
-                , nextAction = NoOpNextAction
+                , checkingAvailability = False
               }
             , Cmd.none
             )
@@ -159,7 +154,7 @@ update msg model =
         LastNameInput lastName ->
             ( { model
                 | lastName = lastName
-                , nextAction = NoOpNextAction
+                , checkingAvailability = False
               }
             , Cmd.none
             )
@@ -168,27 +163,26 @@ update msg model =
             ( { model
                 | emailAddress = emailAddress
                 , checkAvailabilityResult = Nothing
-                , nextAction = NoOpNextAction
+                , checkingAvailability = False
               }
             , Cmd.none
             )
 
         NoOpMsg ->
-            ( { model | nextAction = NoOpNextAction }, Cmd.none )
+            ( { model | checkingAvailability = False }, Cmd.none )
 
         LocalStorageSaved ->
-            ( { model | nextAction = NoOpNextAction }
-            , case model.nextAction of
-                CheckAvailability ->
-                    checkAvailability model.emailAddress
+            ( { model | checkingAvailability = False }
+            , if model.checkingAvailability then
+                checkAvailability model.emailAddress
 
-                NoOpNextAction ->
-                    Cmd.none
+              else
+                Cmd.none
             )
 
         CheckAvailabilityResultReceived result ->
             ( { model
-                | nextAction = NoOpNextAction
+                | checkingAvailability = False
                 , checkAvailabilityResult = Just result
                 , formState =
                     case result of
@@ -538,7 +532,7 @@ buildInitialModel value =
         Nothing
         False
         Editing
-        NoOpNextAction
+        False
 
 
 blankString : String -> Bool
