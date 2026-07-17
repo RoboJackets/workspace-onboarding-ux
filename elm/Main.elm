@@ -235,9 +235,7 @@ view model =
                             , ( "is-invalid", model.showValidation && not (isValid firstNameValidationResult) )
                             ]
                         , name "first_name"
-                        , minlength 1
                         , maxlength 60
-                        , required True
                         , readonly (model.formState /= Editing)
                         , placeholder "First Name"
                         , on "change" (succeed FormChanged)
@@ -260,9 +258,7 @@ view model =
                             , ( "is-invalid", model.showValidation && not (isValid lastNameValidationResult) )
                             ]
                         , name "last_name"
-                        , minlength 1
                         , maxlength 60
-                        , required True
                         , readonly (model.formState /= Editing)
                         , placeholder "Last Name"
                         , on "change" (succeed FormChanged)
@@ -287,8 +283,6 @@ view model =
                             , ( "is-valid", model.showValidation && isValid emailAddressValidationResult )
                             , ( "is-invalid", model.showValidation && not (isValid emailAddressValidationResult) )
                             ]
-                        , minlength 21
-                        , required True
                         , readonly (model.formState /= Editing)
                         , placeholder "Email Address"
                         , on "change" (succeed FormChanged)
