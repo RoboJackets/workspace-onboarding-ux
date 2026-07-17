@@ -300,7 +300,7 @@ view model =
                         [ text (feedbackText emailAddressValidationResult) ]
                     ]
                 , div [ class "form-text", class "mb-3" ]
-                    [ text "Your email address should include your first and last name seperated by a period." ]
+                    [ text "Your email address should include your first and last name separated by a period." ]
                 , div [ class "col-12", class "mb-2" ]
                     [ button
                         [ type_ "submit"
@@ -314,7 +314,7 @@ view model =
                     ]
                 ]
             , div [ class "mb-4", class "mb-md-5", class "col-12", class "form-text" ]
-                [ text "By creating an account, you confirm that you have read and acknowlege the "
+                [ text "By creating an account, you confirm that you have read and acknowledge the "
                 , a [ href "https://policies.google.com/terms", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Google Terms of Service" ]
                 , text ", "
                 , a [ href "https://policies.google.com/privacy", class "text-secondary", target "_blank", rel "noopener noreferrer" ] [ text "Google Privacy Policy" ]
