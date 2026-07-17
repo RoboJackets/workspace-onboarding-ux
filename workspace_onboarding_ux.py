@@ -27,7 +27,7 @@ from flask_minify import Minify  # type: ignore
 
 from google.oauth2 import service_account
 
-from googleapiclient.discovery import Resource, build  # type: ignore
+from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError  # type: ignore
 
 from hubspot import HubSpot  # type: ignore
@@ -163,6 +163,16 @@ apiary = OAuth2Session(
 apiary.headers["User-Agent"] = USER_AGENT  # type: ignore[attr-defined]
 apiary.fetch_token()
 
+google_workspace = build(
+    serviceName="admin",
+    version="directory_v1",
+    credentials=service_account.Credentials.from_service_account_info(  # type: ignore
+        info=app.config["GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"],
+        scopes=["https://www.googleapis.com/auth/admin.directory.user"],
+        subject=app.config["GOOGLE_SUBJECT"],
+    ),
+).users()
+
 cache = Cache(app)
 
 logging.basicConfig()
@@ -183,21 +193,6 @@ def generate_subresource_integrity_hash(file: str) -> str:
 
 
 app.jinja_env.globals["calculate_integrity"] = generate_subresource_integrity_hash
-
-
-def get_google_workspace_client() -> Resource:
-    """
-    Get a Google Workspace API client for manipulating users.
-    """
-    credentials = service_account.Credentials.from_service_account_info(  # type: ignore
-        info=app.config["GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"],
-        scopes=["https://www.googleapis.com/auth/admin.directory.user"],
-        subject=app.config["GOOGLE_SUBJECT"],
-    )
-
-    directory = build(serviceName="admin", version="directory_v1", credentials=credentials)
-
-    return directory.users()
 
 
 @cache.memoize(timeout=0, cache_none=True)
@@ -573,9 +568,7 @@ def invite_user_to_hubspot(self: Task, google_workspace_user_id: str) -> None:  
     Invite a Google Workspace user to HubSpot
     """
     try:
-        workspace_user = (
-            get_google_workspace_client().get(userKey=google_workspace_user_id).execute()
-        )
+        workspace_user = google_workspace.get(userKey=google_workspace_user_id).execute()
     except HttpError as e:
         if e.status_code == 404:
             raise self.retry(exc=e) from e
@@ -685,7 +678,7 @@ def is_email_available(email: str) -> bool:
         return False
 
     try:
-        get_google_workspace_client().get(userKey=email).execute()
+        google_workspace.get(userKey=email).execute()
 
         return False
     except HttpError as e:
@@ -738,9 +731,7 @@ def index() -> Any:
     )
 
     if google_workspace_account is not None:
-        workspace_user = (
-            get_google_workspace_client().get(userKey=google_workspace_account).execute()
-        )
+        workspace_user = google_workspace.get(userKey=google_workspace_account).execute()
 
         session["user_state"] = "provisioned"
         session["email_address"] = workspace_user["primaryEmail"]
@@ -798,9 +789,7 @@ def login() -> Any:  # pylint: disable=too-many-branches
     )
 
     if "googleWorkspaceAccount" in userinfo and userinfo["googleWorkspaceAccount"] is not None:
-        workspace_user = (
-            get_google_workspace_client().get(userKey=userinfo["googleWorkspaceAccount"]).execute()
-        )
+        workspace_user = google_workspace.get(userKey=userinfo["googleWorkspaceAccount"]).execute()
 
         session["user_state"] = "provisioned"
         session["email_address"] = workspace_user["primaryEmail"]
@@ -1087,16 +1076,10 @@ def submit() -> Any:
     keycloak_username = new_user.get("username")
     apiary_user = get_apiary_user(keycloak_username) if keycloak_username is not None else None
 
-    new_workspace_user = (
-        get_google_workspace_client()
-        .insert(
-            body=build_google_workspace_user_body(
-                first_name, last_name, email_address, apiary_user
-            ),
-            resolveConflictAccount=True,
-        )
-        .execute()
-    )
+    new_workspace_user = google_workspace.insert(
+        body=build_google_workspace_user_body(first_name, last_name, email_address, apiary_user),
+        resolveConflictAccount=True,
+    ).execute()
 
     if "id" in new_user:
         del new_user["id"]
