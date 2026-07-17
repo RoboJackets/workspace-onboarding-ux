@@ -106,6 +106,17 @@ Minify(app=app, caching_limit=0, go=False)
 
 app.config.from_prefixed_env()
 
+keycloak_server = urlunparse(
+    (
+        urlparse(app.config["KEYCLOAK_METADATA_URL"]).scheme,
+        urlparse(app.config["KEYCLOAK_METADATA_URL"]).netloc,
+        "",
+        "",
+        "",
+        "",
+    )
+)
+
 celery_app = init_celery(app)
 
 oauth = OAuth(app)  # type: ignore
@@ -118,7 +129,16 @@ oauth.register(  # type: ignore
 keycloak = OAuth2Session(
     client_id=app.config["KEYCLOAK_ADMIN_CLIENT_ID"],
     client_secret=app.config["KEYCLOAK_ADMIN_CLIENT_SECRET"],
-    token_endpoint=app.config["KEYCLOAK_SERVER"] + "/realms/master/protocol/openid-connect/token",
+    token_endpoint=urlunparse(
+        (
+            urlparse(app.config["KEYCLOAK_METADATA_URL"]).scheme,
+            urlparse(app.config["KEYCLOAK_METADATA_URL"]).netloc,
+            "/realms/master/protocol/openid-connect/token",
+            "",
+            "",
+            "",
+        )
+    ),
     leeway=5,
 )
 keycloak.headers["User-Agent"] = USER_AGENT  # type: ignore[attr-defined]
@@ -197,7 +217,7 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
     Get the Slack user ID for a given Keycloak user
     """
     get_keycloak_user_response = keycloak.get(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
+        url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
@@ -319,7 +339,7 @@ def remove_eligible_role(keycloak_user_id: str) -> None:
     Remove the eligible role from this user in Keycloak, after they are provisioned
     """
     remove_eligible_role_response = keycloak.delete(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
+        url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
@@ -360,7 +380,7 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
         return
 
     get_keycloak_user_response = keycloak.get(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
+        url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
@@ -374,8 +394,8 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
         action_id="view_in_keycloak",
         url=urlunparse(
             (
-                urlparse(app.config["KEYCLOAK_SERVER"]).scheme,
-                urlparse(app.config["KEYCLOAK_SERVER"]).hostname,
+                urlparse(app.config["KEYCLOAK_METADATA_URL"]).scheme,
+                urlparse(app.config["KEYCLOAK_METADATA_URL"]).hostname,
                 "/admin/master/console/",
                 "",
                 "",
@@ -484,7 +504,7 @@ def notify_slack_account_created(keycloak_user_id: str) -> None:
     to Google Workspace
     """
     keycloak_user_response = keycloak.get(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
+        url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
@@ -597,7 +617,7 @@ def index() -> Any:
         )
 
     keycloak_user_response = keycloak.get(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
+        url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
@@ -763,10 +783,7 @@ def check_availability() -> Any:
     requested_email_address = request.json["emailAddress"].strip().lower()
 
     search_keycloak_user_response = keycloak.get(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
-        + "/admin/realms/"
-        + app.config["KEYCLOAK_REALM"]
-        + "/users",
+        url=keycloak_server + "/admin/realms/" + app.config["KEYCLOAK_REALM"] + "/users",
         params={
             "q": "googleWorkspaceAccount:" + requested_email_address,
         },
@@ -823,7 +840,7 @@ def submit() -> Any:
     )
 
     get_keycloak_user_response = keycloak.get(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
+        url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
@@ -845,7 +862,7 @@ def submit() -> Any:
         new_user["attributes"]["googleWorkspaceAccount"] = [new_workspace_user["primaryEmail"]]
 
     update_keycloak_user_response = keycloak.put(  # type: ignore
-        url=app.config["KEYCLOAK_SERVER"]
+        url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
         + "/users/"
@@ -893,7 +910,7 @@ def handle_slack_event() -> Dict[str, str]:
 
     if payload["actions"][0]["action_id"] == "grant_eligibility_in_keycloak":
         add_eligible_role_response = keycloak.post(  # type: ignore
-            url=app.config["KEYCLOAK_SERVER"]
+            url=keycloak_server
             + "/admin/realms/"
             + app.config["KEYCLOAK_REALM"]
             + "/users/"
