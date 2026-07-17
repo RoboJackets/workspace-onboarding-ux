@@ -585,6 +585,9 @@ def invite_user_to_hubspot(self: Task, google_workspace_user_id: str) -> None:  
     if not workspace_user["isMailboxSetup"]:
         raise self.retry(exc=Exception("Mailbox is not ready yet"))
 
+    if not workspace_user["agreedToTerms"]:
+        raise self.retry(exc=Exception("User has not agreed to terms yet"))
+
     hubspot = HubSpot(access_token=app.config["HUBSPOT_ACCESS_TOKEN"])
 
     try:
