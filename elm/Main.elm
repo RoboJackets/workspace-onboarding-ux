@@ -2,7 +2,6 @@ port module Main exposing (..)
 
 import Browser
 import Browser.Dom exposing (..)
-import Browser.Navigation as Nav
 import Email
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -14,7 +13,6 @@ import List
 import Regex
 import String exposing (..)
 import Task
-import Url
 import Url.Builder
 
 
@@ -87,9 +85,7 @@ type alias Model =
 
 
 type Msg
-    = UrlRequest Browser.UrlRequest
-    | UrlChanged Url.Url
-    | FormSubmitted
+    = FormSubmitted
     | FormChanged
     | FirstNameInput String
     | LastNameInput String
@@ -105,18 +101,16 @@ type Msg
 
 main : Program Value Model Msg
 main =
-    Browser.application
+    Browser.document
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
-        , onUrlChange = UrlChanged
-        , onUrlRequest = UrlRequest
         }
 
 
-init : Value -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags _ _ =
+init : Value -> ( Model, Cmd Msg )
+init flags =
     ( buildInitialModel flags
     , Cmd.none
     )
@@ -125,17 +119,6 @@ init flags _ _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UrlRequest urlRequest ->
-            case urlRequest of
-                Browser.Internal url ->
-                    ( model, Nav.load (Url.toString url) )
-
-                Browser.External href ->
-                    ( model, Nav.load href )
-
-        UrlChanged _ ->
-            ( model, Cmd.none )
-
         FormSubmitted ->
             ( { model
                 | showValidation = True
