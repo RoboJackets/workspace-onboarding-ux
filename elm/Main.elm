@@ -90,7 +90,7 @@ type Msg
     | FirstNameInput String
     | LastNameInput String
     | EmailAddressInput String
-    | LocalStorageSaved Bool
+    | LocalStorageSaved
     | CheckAvailabilityResultReceived (Result Http.Error Bool)
     | NoOpMsg
 
@@ -176,7 +176,7 @@ update msg model =
         NoOpMsg ->
             ( { model | nextAction = NoOpNextAction }, Cmd.none )
 
-        LocalStorageSaved _ ->
+        LocalStorageSaved ->
             ( { model | nextAction = NoOpNextAction }
             , case model.nextAction of
                 CheckAvailability ->
@@ -215,7 +215,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    localStorageSaved LocalStorageSaved
+    localStorageSaved (always LocalStorageSaved)
 
 
 view : Model -> Browser.Document Msg
@@ -556,4 +556,4 @@ port submitForm : Bool -> Cmd msg
 port saveToLocalStorage : String -> Cmd msg
 
 
-port localStorageSaved : (Bool -> msg) -> Sub msg
+port localStorageSaved : (() -> msg) -> Sub msg

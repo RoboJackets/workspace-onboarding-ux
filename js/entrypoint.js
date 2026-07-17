@@ -9,7 +9,7 @@ const app = Elm.Main.init(
 
 app.ports.saveToLocalStorage.subscribe(function (message) {
     localStorage.setItem("formFields", message);
-    app.ports.localStorageSaved.send(true);
+    app.ports.localStorageSaved.send(null);
 });
 
 app.ports.submitForm.subscribe(function (message) {
