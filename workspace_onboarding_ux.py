@@ -661,6 +661,7 @@ def validate_email_address(value: str) -> str:
     return stripped
 
 
+@cache.memoize(timeout=0)
 def is_email_available(email: str) -> bool:
     """
     Return True if the email is not already used in Keycloak or Google Workspace
@@ -1080,6 +1081,8 @@ def submit() -> Any:
         body=build_google_workspace_user_body(first_name, last_name, email_address, apiary_user),
         resolveConflictAccount=True,
     ).execute()
+
+    cache.delete_memoized(is_email_available, email_address)
 
     if "id" in new_user:
         del new_user["id"]
