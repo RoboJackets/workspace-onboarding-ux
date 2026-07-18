@@ -5,6 +5,7 @@ Overengineered web form to facilitate onboarding users to Google Workspace
 import logging
 import os
 from base64 import b64encode
+from email.errors import HeaderParseError
 from email.headerregistry import Address
 from hashlib import file_digest
 from json import loads
@@ -631,7 +632,7 @@ def validate_email_address(value: str) -> str:
 
     try:
         address = Address(addr_spec=stripped)
-    except (ValueError, IndexError, TypeError) as exc:
+    except (ValueError, IndexError, TypeError, HeaderParseError) as exc:
         raise BadRequest("Please enter a valid email address") from exc
 
     if address.domain != "robojackets.org":
