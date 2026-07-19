@@ -894,6 +894,7 @@ def get_apiary_user(username: str) -> Union[Dict[str, Any], None]:
     apiary_user_response = apiary.get(  # type: ignore
         url=app.config["APIARY_URL"] + "/api/v1/users/" + username,
         headers={"Accept": "application/json"},
+        params={"include": "roles"},
         timeout=(5, 5),
     )
 
@@ -968,6 +969,22 @@ def is_primary_team_project_manager(
     return str(project_manager["id"]) == str(apiary_user["id"])
 
 
+def has_apiary_admin_role(apiary_user: Dict[str, Any]) -> bool:
+    """
+    Return True if the Apiary user has the admin role.
+    """
+    roles = apiary_user.get("roles")
+
+    if roles is None:
+        return False
+
+    for role in roles:
+        if role.get("name") == "admin":
+            return True
+
+    return False
+
+
 def build_google_workspace_user_body(
     first_name: str,
     last_name: str,
@@ -988,6 +1005,9 @@ def build_google_workspace_user_body(
 
     if apiary_user is None:
         return body
+
+    if has_apiary_admin_role(apiary_user):
+        body["orgUnitPath"] = "/Super Administrators"
 
     if apiary_user.get("phone_verified") is True and apiary_user.get("phone"):
         body["phones"] = [
