@@ -99,4 +99,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           image-names: workspace-onboarding-ux
           skip-shas: ${{ needs.docker.outputs.image-digest }}
-          cut-off: 0s
+          cut-off: 1h
