@@ -2061,14 +2061,14 @@ files = [
 
 [[package]]
 name = "types-authlib"
-version = "1.7.2.20260723"
+version = "1.7.2.20260724"
 description = "Typing stubs for Authlib"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "types_authlib-1.7.2.20260723-py3-none-any.whl", hash = "sha256:eeac694c7e94aabf66ee05c6822adb25a655430eeee80c53529907d64c100354"},
-    {file = "types_authlib-1.7.2.20260723.tar.gz", hash = "sha256:c0e447ac2b2661a6df3debbe5600d43cfcf48e7e6c4c06e680cb9cc1afa96c78"},
+    {file = "types_authlib-1.7.2.20260724-py3-none-any.whl", hash = "sha256:ed5ad55d94eadfc4df8ac6396df36e28bd188bf50e05ae892463ff6d85456e03"},
+    {file = "types_authlib-1.7.2.20260724.tar.gz", hash = "sha256:ce1f40fa4269daf029e9b288d82083675b45c9e88c2787be6a4bfdd5484607f1"},
 ]
 
 [package.dependencies]
@@ -2091,14 +2091,14 @@ types-pyasn1 = "*"
 
 [[package]]
 name = "types-pyasn1"
-version = "0.6.0.20260408"
+version = "0.6.0.20260724"
 description = "Typing stubs for pyasn1"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "types_pyasn1-0.6.0.20260408-py3-none-any.whl", hash = "sha256:ee7fbd98bce61193c5d4f8f7812fa53cddc5b8cc5ceb9fcda6eea539947c6d6b"},
-    {file = "types_pyasn1-0.6.0.20260408.tar.gz", hash = "sha256:32dc90927adbe504fd2eee83ae30cf5ef934e5db0d1d94886071fed47eb50c8c"},
+    {file = "types_pyasn1-0.6.0.20260724-py3-none-any.whl", hash = "sha256:487987e4492ce2e1ba6f0048f025165383c49d5d16a345ae5dfe7d44045b7910"},
+    {file = "types_pyasn1-0.6.0.20260724.tar.gz", hash = "sha256:00b9324c1ce8167ec1dc503018cc7d4f190f5770dd3e9a365e897e290e0532db"},
 ]
 
 [[package]]
