@@ -246,19 +246,19 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
         )
 
         if slack_user_id is not None:
-            return slack_user_id  # type: ignore
+            return slack_user_id
 
     if "email" in keycloak_user and keycloak_user["email"] is not None:
         slack_user_id = get_slack_user_id_by_email(keycloak_user["email"])
 
         if slack_user_id is not None:
-            return slack_user_id  # type: ignore
+            return slack_user_id
 
     if "username" in keycloak_user and keycloak_user["username"] is not None:
         slack_user_id = get_slack_user_id_by_email(keycloak_user["username"] + "@gatech.edu")
 
         if slack_user_id is not None:
-            return slack_user_id  # type: ignore
+            return slack_user_id
 
     if "username" in keycloak_user and keycloak_user["username"] is not None:
         apiary_user_response = apiary.get(  # type: ignore
@@ -274,19 +274,19 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
                 slack_user_id = get_slack_user_id_by_email(apiary_user["gt_email"])
 
                 if slack_user_id is not None:
-                    return slack_user_id  # type: ignore
+                    return slack_user_id
 
             if "gmail_address" in apiary_user and apiary_user["gmail_address"] is not None:
                 slack_user_id = get_slack_user_id_by_email(apiary_user["gmail_address"])
 
                 if slack_user_id is not None:
-                    return slack_user_id  # type: ignore
+                    return slack_user_id
 
             if "clickup_email" in apiary_user and apiary_user["clickup_email"] is not None:
                 slack_user_id = get_slack_user_id_by_email(apiary_user["clickup_email"])
 
                 if slack_user_id is not None:
-                    return slack_user_id  # type: ignore
+                    return slack_user_id
 
     with sentry_sdk.start_span(op="ldap.connect"):
         ldap = Connection(
@@ -308,7 +308,7 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
                 slack_user_id = get_slack_user_id_by_email(entry["mail"].value)
 
                 if slack_user_id is not None:
-                    return slack_user_id  # type: ignore
+                    return slack_user_id
 
     return None
 
