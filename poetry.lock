@@ -881,14 +881,14 @@ dotenv = ["python-dotenv"]
 
 [[package]]
 name = "flask-caching"
-version = "2.5.0"
+version = "2.5.1"
 description = "Adds caching support to Flask applications."
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "flask_caching-2.5.0-py3-none-any.whl", hash = "sha256:8e625acd99759171a428ceb9b669ba6743c11dd9b37ace4e0ea7a3ee34097ccd"},
-    {file = "flask_caching-2.5.0.tar.gz", hash = "sha256:5a8779b54695f96e1b4a7a149dd8c6d863433ea66327cde4311ce7fd7b57391f"},
+    {file = "flask_caching-2.5.1-py3-none-any.whl", hash = "sha256:a8591b0315f033d1f10ba67e318b82b3179e548306195ec08e8f0c5f8ef287bf"},
+    {file = "flask_caching-2.5.1.tar.gz", hash = "sha256:f75b451fde3faac0e278da72263818134deca8c4ba6bb07b9b3b238991368dae"},
 ]
 
 [package.dependencies]
@@ -2531,4 +2531,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "3063d8c2923f5c71e1c4c14a80ed2e7b77d1aff89a98d01973b166c5845dcef8"
+content-hash = "7f08e22d4e37bd8b7694368e8d7104ab031473be46ffe621bb8fe6c9c626f893"
