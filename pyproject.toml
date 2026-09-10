@@ -24,7 +24,7 @@ flask-minify = "0.50"
 [tool.poetry.group.dev.dependencies]
 black = "26.5.1"
 flake8 = "7.3.0"
-flake8-bugbear = "25.11.29"
+flake8-bugbear = "26.9.9"
 flake8-import-order = "0.19.2"
 mypy = "2.3.1"
 pylint = "4.0.8"
