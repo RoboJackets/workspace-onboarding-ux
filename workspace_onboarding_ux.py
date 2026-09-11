@@ -130,7 +130,7 @@ keycloak_server = urlunparse(
 
 celery_app = init_celery(app)
 
-oauth = OAuth(app)  # type: ignore
+oauth = OAuth(app)
 oauth.register(  # type: ignore
     name="keycloak",
     server_metadata_url=app.config["KEYCLOAK_METADATA_URL"],
@@ -152,7 +152,7 @@ keycloak = OAuth2Session(
     ),
     leeway=5,
 )
-keycloak.headers["User-Agent"] = USER_AGENT  # type: ignore[attr-defined]
+keycloak.headers["User-Agent"] = USER_AGENT
 keycloak.fetch_token()
 
 apiary = OAuth2Session(
@@ -161,7 +161,7 @@ apiary = OAuth2Session(
     token_endpoint=app.config["APIARY_URL"] + "/oauth/token",
     leeway=300,  # Discard tokens 5 minutes before expiration
 )
-apiary.headers["User-Agent"] = USER_AGENT  # type: ignore[attr-defined]
+apiary.headers["User-Agent"] = USER_AGENT
 apiary.fetch_token()
 
 google_workspace = build(
@@ -222,7 +222,7 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
     """
     Get the Slack user ID for a given Keycloak user
     """
-    get_keycloak_user_response = keycloak.get(  # type: ignore
+    get_keycloak_user_response = keycloak.get(
         url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -261,7 +261,7 @@ def get_slack_user_id(  # pylint: disable=too-many-return-statements,too-many-br
             return slack_user_id
 
     if "username" in keycloak_user and keycloak_user["username"] is not None:
-        apiary_user_response = apiary.get(  # type: ignore
+        apiary_user_response = apiary.get(
             url=app.config["APIARY_URL"] + "/api/v1/users/" + keycloak_user["username"],
             headers={"Accept": "application/json"},
             timeout=(5, 5),
@@ -344,7 +344,7 @@ def remove_eligible_role(keycloak_user_id: str) -> None:
     """
     Remove the eligible role from this user in Keycloak, after they are provisioned
     """
-    remove_eligible_role_response = keycloak.delete(  # type: ignore
+    remove_eligible_role_response = keycloak.delete(
         url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -385,7 +385,7 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
     if cache.get("slack_ineligible_message_" + keycloak_user_id) is not None:
         return
 
-    get_keycloak_user_response = keycloak.get(  # type: ignore
+    get_keycloak_user_response = keycloak.get(
         url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -414,7 +414,7 @@ def notify_slack_ineligible(keycloak_user_id: str) -> None:
         ),
     )
 
-    apiary_user_response = apiary.get(  # type: ignore
+    apiary_user_response = apiary.get(
         url=app.config["APIARY_URL"]
         + "/api/v1/users/"
         + get_keycloak_user_response.json()["username"],
@@ -509,7 +509,7 @@ def notify_slack_account_created(keycloak_user_id: str) -> None:
     Send Slack notifications to the central notifications channel when a new user is added
     to Google Workspace
     """
-    keycloak_user_response = keycloak.get(  # type: ignore
+    keycloak_user_response = keycloak.get(
         url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -667,7 +667,7 @@ def is_email_available(email: str) -> bool:
     """
     Return True if the email is not already used in Keycloak or Google Workspace
     """
-    search_keycloak_user_response = keycloak.get(  # type: ignore
+    search_keycloak_user_response = keycloak.get(
         url=keycloak_server + "/admin/realms/" + app.config["KEYCLOAK_REALM"] + "/users",
         params={
             "q": "googleWorkspaceAccount:" + email,
@@ -714,7 +714,7 @@ def index() -> Any:
             slack_support_channel_name=get_slack_channel_name(app.config["SLACK_SUPPORT_CHANNEL"]),
         )
 
-    keycloak_user_response = keycloak.get(  # type: ignore
+    keycloak_user_response = keycloak.get(
         url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -819,7 +819,7 @@ def login() -> Any:  # pylint: disable=too-many-branches
     else:
         session["user_state"] = "ineligible"
 
-    apiary_user_response = apiary.get(  # type: ignore
+    apiary_user_response = apiary.get(
         url=app.config["APIARY_URL"] + "/api/v1/users/" + userinfo["preferred_username"],
         headers={
             "Accept": "application/json",
@@ -891,7 +891,7 @@ def get_apiary_user(username: str) -> Union[Dict[str, Any], None]:
     """
     Fetch a user from Apiary by username. Returns None if the user does not exist.
     """
-    apiary_user_response = apiary.get(  # type: ignore
+    apiary_user_response = apiary.get(
         url=app.config["APIARY_URL"] + "/api/v1/users/" + username,
         headers={"Accept": "application/json"},
         params={"include": "roles"},
@@ -912,7 +912,7 @@ def get_manager_google_workspace_email(manager_uid: str) -> Union[str, None]:
     """
     Resolve a manager's Google Workspace email via Keycloak, if they have an account.
     """
-    search_keycloak_user_response = keycloak.get(  # type: ignore
+    search_keycloak_user_response = keycloak.get(
         url=keycloak_server + "/admin/realms/" + app.config["KEYCLOAK_REALM"] + "/users",
         params={
             "username": manager_uid,
@@ -947,7 +947,7 @@ def is_primary_team_project_manager(
     """
     Return True if the Apiary user is the project manager of their primary team.
     """
-    apiary_team_response = apiary.get(  # type: ignore
+    apiary_team_response = apiary.get(
         url=app.config["APIARY_URL"] + "/api/v1/teams/" + str(primary_team["id"]),
         headers={"Accept": "application/json"},
         params={"include": "projectManager"},
@@ -1084,7 +1084,7 @@ def submit() -> Any:
     if not is_email_available(email_address):
         raise Conflict("This email address isn't available")
 
-    get_keycloak_user_response = keycloak.get(  # type: ignore
+    get_keycloak_user_response = keycloak.get(
         url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -1116,7 +1116,7 @@ def submit() -> Any:
     else:
         new_user["attributes"]["googleWorkspaceAccount"] = [new_workspace_user["primaryEmail"]]
 
-    update_keycloak_user_response = keycloak.put(  # type: ignore
+    update_keycloak_user_response = keycloak.put(
         url=keycloak_server
         + "/admin/realms/"
         + app.config["KEYCLOAK_REALM"]
@@ -1164,7 +1164,7 @@ def handle_slack_event() -> Dict[str, str]:
         return {"status": "ok"}
 
     if payload["actions"][0]["action_id"] == "grant_eligibility_in_keycloak":
-        add_eligible_role_response = keycloak.post(  # type: ignore
+        add_eligible_role_response = keycloak.post(
             url=keycloak_server
             + "/admin/realms/"
             + app.config["KEYCLOAK_REALM"]
