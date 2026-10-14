@@ -137,19 +137,19 @@ files = [
 
 [[package]]
 name = "authlib"
-version = "1.9.0"
+version = "1.9.1"
 description = "The ultimate Python library in building OAuth and OpenID Connect servers and clients."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "authlib-1.9.0-py2.py3-none-any.whl", hash = "sha256:c54c963ede35c428d126f5bb5d6f84617e91ace74d6ea9acad659c30f5ff1819"},
-    {file = "authlib-1.9.0.tar.gz", hash = "sha256:9d17f1702131683a9af223e48c275b13d1520510582371f327a0ef05a370568e"},
+    {file = "authlib-1.9.1-py2.py3-none-any.whl", hash = "sha256:8b9be8b1e5174dcbf5520e984f1a22dc2edae5b6e40a61d4cedbf86b97e9e69b"},
+    {file = "authlib-1.9.1.tar.gz", hash = "sha256:5c7d9848f47cac340f060f76ae0bc09b59f5c8e89cc1bb032d4370a0c55b5974"},
 ]
 
 [package.dependencies]
 cryptography = ">=45.0.1"
-joserfc = ">=1.6.1"
+joserfc = ">=1.6.8"
 
 [[package]]
 name = "billiard"
@@ -2693,4 +2693,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "50bd76f77a1823a44e64c5fe40fb185e1734c846c2ec8374d7b420bad2240f82"
+content-hash = "18880e240061750910c9aa5fd0ca8d6ea6bfe3dfc651500d6d7023103073054d"
