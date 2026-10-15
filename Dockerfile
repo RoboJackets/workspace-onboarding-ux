@@ -16,7 +16,7 @@ RUN set -eux && \
     npm ci --no-progress && \
     npm run build
 
-FROM python:3.14-slim-trixie
+FROM python:3.15-slim-trixie
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="${PATH}:/root/.local/bin" \
