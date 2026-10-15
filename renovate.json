@@ -80,6 +80,18 @@
                 "github-actions"
             ],
             "rangeStrategy": "replace"
+        },
+        {
+            "matchCategories": [
+                "js"
+            ],
+            "matchDepNames": [
+                "elm"
+            ],
+            "major": {
+                "enabled": true
+            },
+            "versioning": "loose"
         }
     ]
 }
