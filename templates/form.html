@@ -1,8 +1,13 @@
 {% extends "layout.html" %}
 {% block body %}
-    <p class="mt-4 mb-4">RoboJackets uses <a href="https://workspace.google.com" target="_blank" rel="noopener noreferrer">Google Workspace</a> for business email and collaboration tools. Request a Google Workspace account below.</p>
-    <script>
-    window.serverData = {{ elm_model | tojson }}
-    </script>
-    <script src="{{ url_for('static', filename='app.js') }}" integrity="{{ calculate_integrity(url_for('static', filename='app.js')) }}" crossorigin="anonymous"></script>
+<p class="mt-4 mb-4">RoboJackets uses <a href="https://workspace.google.com" target="_blank" rel="noopener noreferrer">Google Workspace</a> for business email and collaboration tools. Request a Google Workspace account below.</p>
+<script>
+window.serverData = {{ elm_model | tojson }}
+</script>
+<script src="{{ url_for('static', filename='app.js') }}" integrity="{{ calculate_integrity(url_for('static', filename='app.js')) }}" crossorigin="anonymous"></script>
+<noscript>
+<div class="alert alert-danger" role="alert">
+  This app requires JavaScript.
+</div>
+</noscript>
 {% endblock %}
