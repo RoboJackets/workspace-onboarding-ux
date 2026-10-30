@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.28
 
-FROM node:24-trixie AS frontend
+FROM node:26-trixie AS frontend
 
 RUN npm install -g npm@latest
 
