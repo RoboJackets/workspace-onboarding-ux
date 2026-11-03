@@ -1069,14 +1069,14 @@ pyparsing = ">=3.1,<4"
 
 [[package]]
 name = "hubspot-api-client"
-version = "12.0.0"
+version = "13.0.0"
 description = "HubSpot API client"
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "hubspot_api_client-12.0.0-py3-none-any.whl", hash = "sha256:5426627ff808fdf259d5b5e4791667a323a2a82d36a834e7e43ec8e8f021aa08"},
-    {file = "hubspot_api_client-12.0.0.tar.gz", hash = "sha256:ddfc60f3a80565dd5bf7fc7554d0d2dabad37926f547436158258772f1a04e69"},
+    {file = "hubspot_api_client-13.0.0-py3-none-any.whl", hash = "sha256:99e19433f2bb7accb53bd2d0f5578ae3443274cff5a4f96bd4adbb6a74dba0ae"},
+    {file = "hubspot_api_client-13.0.0.tar.gz", hash = "sha256:ee9bc41dbd6a424ba776780b861335a35f8aa849207d8c995b9879e416da8596"},
 ]
 
 [package.dependencies]
@@ -2708,4 +2708,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "13a253b98a4bdae714700c58f058c94303a41dc8d1437b8bffdc8edfa8a9e49c"
+content-hash = "d35e1c8ac49fea0ac216c0d251d099124f8b019d318c527eeec7748fac68d0af"
