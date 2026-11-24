@@ -834,14 +834,14 @@ pyflakes = ">=4.1.0,<4.2.0"
 
 [[package]]
 name = "flake8-bugbear"
-version = "26.11.16"
+version = "26.11.22"
 description = "A plugin for flake8 finding likely bugs and design problems in your program. Contains warnings that don't belong in pyflakes and pycodestyle."
 optional = false
 python-versions = ">=3.11"
 groups = ["dev"]
 files = [
-    {file = "flake8_bugbear-26.11.16-py3-none-any.whl", hash = "sha256:7259ebf6fcd7ec78e0e997325ee0922952468f190e2f284dfec6e915bcc45c2e"},
-    {file = "flake8_bugbear-26.11.16.tar.gz", hash = "sha256:a9c141dfad5f1b97e41d2d76360ebfc41072f1c7005e97db53ed700e0c292f82"},
+    {file = "flake8_bugbear-26.11.22-py3-none-any.whl", hash = "sha256:bc10d62be1dc512dc7825ee34c20492425370b209e47fb09a1dedd29eba49aca"},
+    {file = "flake8_bugbear-26.11.22.tar.gz", hash = "sha256:df1a764570a3047deb99c6c1309679277815ef48d7c9dada7e04973e2b327a10"},
 ]
 
 [package.dependencies]
@@ -2710,4 +2710,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "e9c7610183a10414d7e36994c5775ae3833f3e116a9cb3322a553f42fb3c0175"
+content-hash = "a0359e51d5f232cc88bef099d4b612b0535e67ccd631a63dc8573dc460ff1f00"
